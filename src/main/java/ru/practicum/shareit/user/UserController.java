@@ -4,8 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
 
-
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -25,7 +23,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public User get(@PathVariable("userId") Long userId) {
+    public User getUserById(@PathVariable("userId") Long userId) {
         return userService.getUserById(userId);
     }
 
@@ -35,14 +33,12 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public User update(@PathVariable("userId") Long userId, @RequestBody UserDto userDto){
-        return userService.update(userId,userDto);
+    public User update(@PathVariable("userId") Long userId, @RequestBody UserDto userDto) {
+        return userService.update(userId, userDto);
     }
 
     @DeleteMapping("/{userId}")
-    public void delete(@PathVariable("userId") Long userId){
+    public void delete(@PathVariable("userId") Long userId) {
         userService.delete(userId);
     }
-
-
 }

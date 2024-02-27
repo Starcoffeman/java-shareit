@@ -8,9 +8,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exceptions.ResourceNotFoundException;
-import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.User;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,11 +23,17 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
+    @Override
+    public List<Item> getItems(long userId) {
+        String sqlQuery = "SELECT * FROM ITEMS WHERE OWNER = ? AND AVAILABLE=TRUE";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToItem, userId);
+    }
 
     @Override
-    public List<Item> getItems() {
-        String sqlQuery = "SELECT * FROM ITEMS";
-        return jdbcTemplate.query(sqlQuery, this::mapRowToItem);
+    public List<Item> searchItems(String searchText) {
+        String sqlQuery = "SELECT * FROM ITEMS WHERE LOWER(NAME) LIKE LOWER(?) OR LOWER(DESCRIPTION) LIKE LOWER(?) AND AVAILABLE=TRUE";
+        searchText = "%" + searchText + "%";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToItem, searchText, searchText);
     }
 
     @Override
@@ -43,19 +47,18 @@ public class ItemRepositoryImpl implements ItemRepository {
                     ps.setString(1, item.getName());
                     ps.setString(2, item.getDescription());
                     ps.setBoolean(3, item.getAvailable());
-                    ps.setLong(4,item.getOwner());
-                    ps.setLong(5,0);
+                    ps.setLong(4, item.getOwner());
+                    ps.setLong(5, 0);
                     return ps;
                 },
                 keyHolder);
-
         item.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
         return getItemById(item.getId());
     }
 
     @Override
     public Item getItemById(long itemId) {
-        String sqlQuery = "SELECT * FROM ITEMS WHERE ID = ?";
+        String sqlQuery = "SELECT * FROM ITEMS WHERE ID = ? ";
         SqlRowSet itemRows = jdbcTemplate.queryForRowSet(sqlQuery, itemId);
         if (itemRows.next()) {
             Item item = Item.builder()
@@ -74,46 +77,26 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public Item update(long id, ItemDto itemDto) {
-        // Retrieve the existing item from the database
-        Item existingItem = getItemById(id);
+    public Item update(long userId, long itemId, Item item) {
+        if (getItemById(itemId).getOwner() != userId) {
+            throw new ResourceNotFoundException("Отсутствует user под id");
+        }
+        Item existingItem = getItemById(itemId);
+        if (item.getName() != null) {
+            existingItem.setName(item.getName());
+        }
+        if (item.getDescription() != null) {
+            existingItem.setDescription(item.getDescription());
+        }
+        if (item.getAvailable() != null) {
+            existingItem.setAvailable(item.getAvailable());
+        }
 
-        // Update the item details if provided in the request
-        if (itemDto.getName() != null) {
-            existingItem.setName(itemDto.getName());
-        }
-        if (itemDto.getDescription() != null) {
-            existingItem.setDescription(itemDto.getDescription());
-        }
-        if (itemDto.getAvailable() != null) {
-            existingItem.setAvailable(itemDto.getAvailable());
-        }
-
-        // Update the item in the database
         String sqlQuery = "UPDATE ITEMS SET NAME = ?, DESCRIPTION = ?, AVAILABLE = ?,OWNER = ?,REQUEST=? WHERE ID = ?";
         jdbcTemplate.update(sqlQuery, existingItem.getName(), existingItem.getDescription(),
-                existingItem.getAvailable(),existingItem.getOwner(),existingItem.getRequest(), id);
-
-        log.info("Item with id {} successfully updated", id);
-
-        return getItemById(id);
-    }
-
-    @Override
-    public void delete(long itemId) {
-        // Check if the item exists
-        getItemById(itemId);
-
-        // Delete the item from the database
-        String sqlQuery = "DELETE FROM ITEMS WHERE ID = ?";
-        int rowsAffected = jdbcTemplate.update(sqlQuery, itemId);
-
-        if (rowsAffected > 0) {
-            log.info("Item with id {} successfully deleted", itemId);
-        } else {
-            log.warn("Failed to find item with id {} for deletion", itemId);
-            throw new ResourceNotFoundException("Item not found for deletion");
-        }
+                existingItem.getAvailable(), existingItem.getOwner(), existingItem.getRequest(), itemId);
+        log.info("Item with id {} successfully updated", itemId);
+        return getItemById(itemId);
     }
 
     private Item mapRowToItem(ResultSet rs, int rowNum) throws SQLException {
@@ -126,11 +109,4 @@ public class ItemRepositoryImpl implements ItemRepository {
         item.setRequest(rs.getLong("REQUEST"));
         return item;
     }
-
-    private boolean isItemAlreadyExists(String name) {
-        String sqlQuery = "SELECT COUNT(*) FROM ITEMS WHERE NAME = ?";
-        int count = jdbcTemplate.queryForObject(sqlQuery, Integer.class, name);
-        return count > 0;
-    }
-
 }

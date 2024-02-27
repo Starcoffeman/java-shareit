@@ -1,19 +1,15 @@
 package ru.practicum.shareit.user;
 
-import org.springframework.http.HttpStatus;
-import ru.practicum.shareit.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
-import ru.practicum.shareit.exceptions.ValidationException;
+import ru.practicum.shareit.exceptions.ResourceNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -36,12 +32,10 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User add(UserDto userDto) {
-
         if (isEmailAlreadyExists(userDto.getEmail())) {
             throw new RuntimeException("Duplicate email found");
         }
         User user = userMapper.toUserDto(userDto);
-
         KeyHolder keyHolder = new GeneratedKeyHolder();
         String sqlQuery = "INSERT INTO USERS (NAME,EMAIL) VALUES (?,?)";
         jdbcTemplate.update(
@@ -49,11 +43,10 @@ public class UserRepositoryImpl implements UserRepository {
                     PreparedStatement ps =
                             connection.prepareStatement(sqlQuery, new String[]{"id"});
                     ps.setString(1, user.getName());
-                    ps.setString( 2,user.getEmail());
+                    ps.setString(2, user.getEmail());
                     return ps;
                 },
                 keyHolder);
-
         user.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
         return getUserById(user.getId());
     }
@@ -77,40 +70,27 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User update(long userId, UserDto userDto) {
-        // Retrieve the existing user from the database
         User existingUser = getUserById(userId);
-
-        // Check if the new email is already associated with another user
         if (userDto.getEmail() != null && isEmailAlreadyExistsForOtherUser(userId, userDto.getEmail())) {
             throw new RuntimeException("Duplicate email found for another user");
         }
-
-        // Update the user details if provided in the request
         if (userDto.getName() != null) {
             existingUser.setName(userDto.getName());
         }
         if (userDto.getEmail() != null) {
             existingUser.setEmail(userDto.getEmail());
         }
-
-        // Update the user in the database
         String sqlQuery = "UPDATE USERS SET NAME = ?, EMAIL = ? WHERE ID = ?";
         jdbcTemplate.update(sqlQuery, existingUser.getName(), existingUser.getEmail(), userId);
-
         log.info("Пользователь с id {} успешно обновлен", userId);
-
         return getUserById(userId);
     }
 
     @Override
     public void delete(Long userId) {
-        // Check if the user exists
         getUserById(userId);
-
-        // Delete the user from the database
         String sqlQuery = "DELETE FROM USERS WHERE ID = ?";
         int rowsAffected = jdbcTemplate.update(sqlQuery, userId);
-
         if (rowsAffected > 0) {
             log.info("Пользователь с id {} успешно удален", userId);
         } else {
@@ -138,5 +118,4 @@ public class UserRepositoryImpl implements UserRepository {
         int count = jdbcTemplate.queryForObject(sqlQuery, Integer.class, email, userId);
         return count > 0;
     }
-
 }

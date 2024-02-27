@@ -1,13 +1,13 @@
 package ru.practicum.shareit.user;
 
-
-
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
 
 interface UserRepository {
+
     List<User> findAll();
+
     User add(UserDto user);
 
     User getUserById(long userId);
