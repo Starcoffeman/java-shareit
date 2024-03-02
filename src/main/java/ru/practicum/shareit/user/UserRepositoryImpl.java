@@ -74,7 +74,7 @@ public class UserRepositoryImpl implements UserRepository {
         if (userDto.getEmail() != null && isEmailAlreadyExistsForOtherUser(userId, userDto.getEmail())) {
             throw new RuntimeException("Duplicate email found for another user");
         }
-        if (userDto.getName() != null || userDto.getName().equals("")) {
+        if (userDto.getName() != null) {
             existingUser.setName(userDto.getName());
         }
         if (userDto.getEmail() != null || userDto.getName().equals("")) {
