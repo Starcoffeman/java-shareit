@@ -9,7 +9,7 @@ import ru.practicum.shareit.item.model.Item;
 @Component
 public class ItemMapper {
 
-    public Item toItemDto(ItemDto itemDto) {
+    public Item toItem(ItemDto itemDto) {
         if (itemDto == null) {
             return null;
         }

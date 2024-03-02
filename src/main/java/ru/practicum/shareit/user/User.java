@@ -11,9 +11,6 @@ import javax.persistence.Id;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Data
 @Builder
 @AllArgsConstructor
@@ -30,6 +27,4 @@ public class User {
     @NotBlank
     @Email(message = "электронная почта не может быть пустой и должна содержать символ @")
     private String email;
-
-
 }

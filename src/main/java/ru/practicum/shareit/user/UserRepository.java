@@ -4,7 +4,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
 
-interface UserRepository {
+public interface UserRepository {
 
     List<User> findAll();
 

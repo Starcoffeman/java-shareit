@@ -64,7 +64,7 @@ public class UserRepositoryImpl implements UserRepository {
             log.info("Найден пользователь с id {}", id);
             return user;
         }
-        log.warn("Пользователь с id {} не найден", id);
+        log.error("Пользователь с id {} не найден", id);
         throw new ResourceNotFoundException("Пользователь не найден");
     }
 
@@ -74,10 +74,10 @@ public class UserRepositoryImpl implements UserRepository {
         if (userDto.getEmail() != null && isEmailAlreadyExistsForOtherUser(userId, userDto.getEmail())) {
             throw new RuntimeException("Duplicate email found for another user");
         }
-        if (userDto.getName() != null) {
+        if (userDto.getName() != null || userDto.getName().equals("")) {
             existingUser.setName(userDto.getName());
         }
-        if (userDto.getEmail() != null) {
+        if (userDto.getEmail() != null || userDto.getName().equals("")) {
             existingUser.setEmail(userDto.getEmail());
         }
         String sqlQuery = "UPDATE USERS SET NAME = ?, EMAIL = ? WHERE ID = ?";
@@ -94,7 +94,7 @@ public class UserRepositoryImpl implements UserRepository {
         if (rowsAffected > 0) {
             log.info("Пользователь с id {} успешно удален", userId);
         } else {
-            log.warn("Не удалось найти пользователя с id {} для удаления", userId);
+            log.error("Не удалось найти пользователя с id {} для удаления", userId);
             throw new ResourceNotFoundException("Пользователь не найден для удаления");
         }
     }
