@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exceptions.ResourceNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -35,6 +36,7 @@ public class UserRepositoryImpl implements UserRepository {
         if (isEmailAlreadyExists(userDto.getEmail())) {
             throw new RuntimeException("Duplicate email found");
         }
+
         User user = userMapper.toUserDto(userDto);
         KeyHolder keyHolder = new GeneratedKeyHolder();
         String sqlQuery = "INSERT INTO USERS (NAME,EMAIL) VALUES (?,?)";
@@ -77,7 +79,7 @@ public class UserRepositoryImpl implements UserRepository {
         if (userDto.getName() != null) {
             existingUser.setName(userDto.getName());
         }
-        if (userDto.getEmail() != null || userDto.getName().equals("")) {
+        if (userDto.getEmail() != null) {
             existingUser.setEmail(userDto.getEmail());
         }
         String sqlQuery = "UPDATE USERS SET NAME = ?, EMAIL = ? WHERE ID = ?";

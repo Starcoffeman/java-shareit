@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
 
@@ -28,14 +29,23 @@ public class UserServiceImpl implements UserService {
     }
 
     public User update(long id, UserDto userDto) {
+        if (id < 1) {
+            throw new ValidationException("Id не может быть отрицательным");
+        }
         return repository.update(id, userDto);
     }
 
     public User getUserById(long userId) {
+        if (userId < 1) {
+            throw new ValidationException("Id не может быть отрицательным");
+        }
         return repository.getUserById(userId);
     }
 
     public void delete(Long userId) {
+        if (userId < 1) {
+            throw new ValidationException("Id не может быть отрицательным");
+        }
         repository.delete(userId);
     }
 }

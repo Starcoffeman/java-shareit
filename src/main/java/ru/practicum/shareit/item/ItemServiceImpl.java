@@ -30,6 +30,10 @@ public class ItemServiceImpl implements ItemService {
             throw new ValidationException("Отсутствует поле Available");
         }
 
+        if (userId < 1) {
+            throw new ValidationException("Id не может быть отрицательным");
+        }
+
         if (userRepository.getUserById(userId) == null) {
             throw new ResourceNotFoundException("Отсутствует user под id:");
         }
@@ -38,10 +42,22 @@ public class ItemServiceImpl implements ItemService {
 
     public Item update(long userId, long itemId, ItemDto itemDto) {
         Item item = itemMapper.toItem(itemDto);
+        if (userId < 1) {
+            throw new ValidationException("Id не может быть отрицательным");
+        }
+
+        if (itemId < 1) {
+            throw new ValidationException("Id не может быть отрицательным");
+        }
+
         return repository.update(userId, itemId, item);
+
     }
 
     public Item getItemById(long userId) {
+        if (userId < 1) {
+            throw new ValidationException("Id не может быть отрицательным");
+        }
         return repository.getItemById(userId);
     }
 
