@@ -1,9 +1,10 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.intf.Create;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -21,10 +22,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
+    @NotBlank(groups = Create.class, message = "Имя не может быть пустым")
     private String name;
 
-    @NotBlank
-    @Email(message = "электронная почта не может быть пустой и должна содержать символ @")
+    @NotBlank(groups = Create.class, message = "Электронная почта не может быть пустым")
+    @Email(groups = Create.class, message = "электронная почта не может быть пустой и должна содержать символ @")
     private String email;
 }
