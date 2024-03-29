@@ -48,7 +48,6 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @Transactional
     public Booking createBooking(long userId, BookingDto bookingDto) {
         if (bookingDto.getStart() == null) {
             throw new ValidationException("Booking start time cannot be null");
@@ -99,7 +98,6 @@ public class BookingServiceImpl implements BookingService {
 
 
     @Override
-    @Transactional
     public Booking getBookingByIdAndBookerOrOwner(long bookingId, long userId) {
         Booking booking = getBookingById(bookingId);
 
@@ -115,10 +113,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @Transactional
     public Booking getBookingById(long bookingId) {
-        return repository.findById(bookingId)
-                .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
+        return repository.findById(bookingId).orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
     }
 
     @Override
@@ -212,10 +208,7 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> pastBookings = repository.findBookingsByItem_Owner(userId);
         LocalDateTime now = LocalDateTime.now();
 
-        return pastBookings.stream()
-                .filter(booking -> booking.getEnd().isBefore(now))
-                .sorted(Comparator.comparing(Booking::getEnd).reversed())
-                .collect(Collectors.toList());
+        return pastBookings.stream().filter(booking -> booking.getEnd().isBefore(now)).sorted(Comparator.comparing(Booking::getEnd).reversed()).collect(Collectors.toList());
     }
 
     @Override
@@ -223,10 +216,7 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> pastBookings = repository.findBookingsByBooker_Id(userId);
         LocalDateTime now = LocalDateTime.now();
 
-        return pastBookings.stream()
-                .filter(booking -> booking.getEnd().isBefore(now))
-                .sorted(Comparator.comparing(Booking::getEnd).reversed())
-                .collect(Collectors.toList());
+        return pastBookings.stream().filter(booking -> booking.getEnd().isBefore(now)).sorted(Comparator.comparing(Booking::getEnd).reversed()).collect(Collectors.toList());
     }
 
     @Override
@@ -234,10 +224,7 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> currentBookings = repository.findBookingsByItem_Owner(userId);
         LocalDateTime now = LocalDateTime.now();
 
-        return currentBookings.stream()
-                .filter(booking -> booking.getStart().isBefore(now) && booking.getEnd().isAfter(now))
-                .sorted(Comparator.comparing(Booking::getStart))
-                .collect(Collectors.toList());
+        return currentBookings.stream().filter(booking -> booking.getStart().isBefore(now) && booking.getEnd().isAfter(now)).sorted(Comparator.comparing(Booking::getStart)).collect(Collectors.toList());
     }
 
     @Override
@@ -245,9 +232,6 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> currentBookings = repository.findBookingsByBooker_Id(userId);
         LocalDateTime now = LocalDateTime.now();
 
-        return currentBookings.stream()
-                .filter(booking -> booking.getStart().isBefore(now) && booking.getEnd().isAfter(now))
-                .sorted(Comparator.comparing(Booking::getStart))
-                .collect(Collectors.toList());
+        return currentBookings.stream().filter(booking -> booking.getStart().isBefore(now) && booking.getEnd().isAfter(now)).sorted(Comparator.comparing(Booking::getStart)).collect(Collectors.toList());
     }
 }

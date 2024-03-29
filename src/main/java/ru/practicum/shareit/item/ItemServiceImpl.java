@@ -37,7 +37,6 @@ public class ItemServiceImpl implements ItemService {
     private final CommentService commentService;
 
     @Override
-    @Transactional
     public List<ItemDto> findItemsByOwner(long userId) {
         List<Item> items = itemRepository.findItemsByOwner(userId);
         List<ItemDto> itemDtos = new ArrayList<>();
@@ -76,7 +75,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    @Transactional
     public ItemDto getItemById(long userId, long itemId) {
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new ResourceNotFoundException("Item not found with ID: " + itemId));
         ItemDto itemDto = ItemMapper.mapToItemDto(item);
@@ -95,7 +93,7 @@ public class ItemServiceImpl implements ItemService {
         return itemDto;
     }
 
-    private List<CommentDto> getNameAuthor(Item item){
+    private List<CommentDto> getNameAuthor(Item item) {
         List<CommentDto> commentDtos = new ArrayList<>();
         for (Comment comment : item.getComments()) {
             CommentDto commentDto = CommentMapper.mapToCommentDto(comment);
@@ -137,7 +135,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    @Transactional
     public List<ItemDto> searchItems(String searchText) {
         if (searchText.equals("")) {
             return new ArrayList<>();
