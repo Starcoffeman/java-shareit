@@ -24,4 +24,12 @@ public class ErrorHandler {
                 .status(HttpStatus.NOT_FOUND) //404
                 .body(new ErrorMessage(e.getMessage()));
     }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ErrorMessage> handleConflictException(final ConflictException e) {
+        log.info(e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT) //409
+                .body(new ErrorMessage(e.getMessage()));
+    }
 }

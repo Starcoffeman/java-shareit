@@ -3,6 +3,7 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exceptions.ConflictException;
 import ru.practicum.shareit.exceptions.ResourceNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -67,9 +68,13 @@ public class UserServiceImpl implements UserService {
             updatedUser.setName(userDto.getName());
         }
 
-        if (userDto.getEmail() != null) {
+        if (userDto.getEmail() != null && !userDto.getEmail().equals(updatedUser.getEmail())) {
+            if (repository.existsByEmail(userDto.getEmail())) {
+                throw new ConflictException("User with email '" + userDto.getEmail() + "' already exists.");
+            }
             updatedUser.setEmail(userDto.getEmail());
         }
+
         repository.updateUser(userId, updatedUser.getName(), updatedUser.getEmail());
         return UserMapper.mapToUserDto(updatedUser);
     }
