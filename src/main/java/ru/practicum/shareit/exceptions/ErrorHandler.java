@@ -13,7 +13,7 @@ public class ErrorHandler {
     public ResponseEntity<ErrorMessage> handleValidationException(final ValidationException e) {
         log.info(e.getMessage());
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .status(HttpStatus.BAD_REQUEST) //400
                 .body(new ErrorMessage(e.getMessage()));
     }
 
@@ -21,7 +21,7 @@ public class ErrorHandler {
     public ResponseEntity<ErrorMessage> handleNotFoundException(final ResourceNotFoundException e) {
         log.info(e.getMessage());
         return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
+                .status(HttpStatus.NOT_FOUND) //404
                 .body(new ErrorMessage(e.getMessage()));
     }
 }

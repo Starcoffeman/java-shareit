@@ -2,6 +2,8 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exceptions.ResourceNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
@@ -10,42 +12,74 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
 
-    public List<User> getAllUsers() {
-        return repository.findAll();
+    @Override
+    public List<UserDto> getAllUsers() {
+        List<User> users = repository.findAll();
+        return UserMapper.mapToUserDto(users);
     }
 
-    public User add(UserDto userDto) {
+    @Override
+    @Transactional
+    public UserDto saveUser(UserDto userDto) {
+        if (userDto.getName() == null) {
+            throw new ValidationException("Имя не может быть пустым");
+        }
+
         if (userDto.getEmail() == null) {
-            throw new ValidationException("Error: Email == null");
+            throw new ValidationException("Электронная почта не может быть пустым");
         }
-        if (!userDto.getEmail().contains("@")) {
-            throw new ValidationException("Error: Email with out @");
+
+        if (repository.existsByEmail(userDto.getEmail())) {
+            repository.save(UserMapper.mapToNewUser(userDto));
+            throw new RuntimeException("Email address already exists");
         }
-        return repository.add(userDto);
+        User user = repository.save(UserMapper.mapToNewUser(userDto));
+        return UserMapper.mapToUserDto(user);
     }
 
-    public User update(long id, UserDto userDto) {
-        if (id < 1) {
-            throw new ValidationException("Id не может быть отрицательным");
-        }
-        return repository.update(id, userDto);
+    @Override
+    @Transactional
+    public String getUserNameById(Long userId) {
+        User user = repository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
+        return user.getName();
     }
 
-    public User getUserById(long userId) {
+    @Override
+    @Transactional
+    public UserDto getUserById(long userId) {
+        User user = repository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
+        return UserMapper.mapToUserDto(user);
+    }
+
+    @Override
+    @Transactional
+    public UserDto update(long userId, UserDto userDto) {
+        User updatedUser = repository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
+        if (userDto.getName() != null) {
+            updatedUser.setName(userDto.getName());
+        }
+
+        if (userDto.getEmail() != null) {
+            updatedUser.setEmail(userDto.getEmail());
+        }
+        repository.updateUser(userId, updatedUser.getName(), updatedUser.getEmail());
+        return UserMapper.mapToUserDto(updatedUser);
+    }
+
+    @Override
+    @Transactional
+    public void deleteUserById(long userId) {
         if (userId < 1) {
             throw new ValidationException("Id не может быть отрицательным");
         }
-        return repository.getUserById(userId);
-    }
-
-    public void delete(Long userId) {
-        if (userId < 1) {
-            throw new ValidationException("Id не может быть отрицательным");
-        }
-        repository.delete(userId);
+        repository.deleteUserById(userId);
     }
 }

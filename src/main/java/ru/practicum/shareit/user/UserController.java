@@ -3,11 +3,11 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.intf.Create;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.model.User;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -19,38 +19,37 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public User add(@Valid @RequestBody UserDto userDto) {
-        log.info("Добавление пользователя под id: {}", userDto.getId());
-        return userService.add(userDto);
+    public UserDto saveNewUser(@Validated(Create.class) @RequestBody UserDto userDto) {
+        log.info("Received request to save new user");
+        return userService.saveUser(userDto);
+    }
+
+    @GetMapping
+    public List<UserDto> getAllUsers() {
+        log.info("Received request to get all users");
+        return userService.getAllUsers();
     }
 
     @GetMapping("/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public User getUserById(@PathVariable("userId") Long userId) {
+    public UserDto getUserById(@PathVariable("userId") Long userId) {
         log.info("Вывод пользователя под id: {}", userId);
         return userService.getUserById(userId);
     }
 
-    @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public List<User> getAllUsers() {
-        log.info("Вывод всех пользователей");
-        return userService.getAllUsers();
-    }
-
     @PatchMapping("/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public User update(@PathVariable("userId") Long userId, @RequestBody UserDto userDto) {
-        log.info("Обновлён пользователь под id: {}", userId);
+    public UserDto update(@PathVariable("userId") long userId, @RequestBody UserDto userDto) {
+        log.info("Вывод пользователя под id: {}", userId);
         return userService.update(userId, userDto);
     }
 
     @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public String delete(@PathVariable("userId") Long userId) {
+    public String delete(@PathVariable("userId") long userId) {
         log.info("Удалён пользователь под id: {}", userId);
-        userService.delete(userId);
+        userService.deleteUserById(userId);
         return "Пользователь успешно удалён";
     }
+
 }
