@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
         if (userDto.getEmail() == null) {
             throw new ValidationException("Электронная почта не может быть пустым");
         }
-
+        
         User user = repository.save(UserMapper.mapToNewUser(userDto));
         return UserMapper.mapToUserDto(user);
     }
