@@ -35,13 +35,10 @@ public class UserServiceImpl implements UserService {
             throw new ValidationException("Электронная почта не может быть пустым");
         }
 
-        if (repository.existsByEmail(userDto.getEmail())) {
-            repository.save(UserMapper.mapToNewUser(userDto));
-            throw new RuntimeException("Email address already exists");
-        }
         User user = repository.save(UserMapper.mapToNewUser(userDto));
         return UserMapper.mapToUserDto(user);
     }
+
 
     @Override
     public String getUserNameById(Long userId) {

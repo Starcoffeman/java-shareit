@@ -17,4 +17,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
     @Query("DELETE FROM User u WHERE u.id = :userId")
     void deleteUserById(@Param("userId") long userId);
+
+    @Query("SELECT MAX(u.id) FROM User u")
+    Long getMaxUserId();
 }
