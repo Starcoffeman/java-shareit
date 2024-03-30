@@ -33,7 +33,7 @@ public class Item {
     private String description;
 
     @NotNull(groups = Create.class, message = "Описание не может быть пустым")
-    @Column(name = "available", nullable = false)
+    @Column(name = "is_available", nullable = false)
     private Boolean available;
 
     @Column(name = "owner", nullable = false)
