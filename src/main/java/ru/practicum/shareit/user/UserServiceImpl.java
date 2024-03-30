@@ -19,6 +19,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository repository;
 
     @Override
+    @Transactional
     public List<UserDto> getAllUsers() {
         List<User> users = repository.findAll();
         return UserMapper.mapToUserDto(users);
@@ -34,13 +35,14 @@ public class UserServiceImpl implements UserService {
         if (userDto.getEmail() == null) {
             throw new ValidationException("Электронная почта не может быть пустым");
         }
-        
+
         User user = repository.save(UserMapper.mapToNewUser(userDto));
         return UserMapper.mapToUserDto(user);
     }
 
 
     @Override
+    @Transactional
     public String getUserNameById(Long userId) {
         User user = repository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
@@ -48,6 +50,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDto getUserById(long userId) {
         User user = repository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
@@ -75,6 +78,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void deleteUserById(long userId) {
         if (userId < 1) {
             throw new ValidationException("Id не может быть отрицательным");

@@ -48,6 +48,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public Booking createBooking(long userId, BookingDto bookingDto) {
         if (bookingDto.getStart() == null) {
             throw new ValidationException("Booking start time cannot be null");
@@ -98,6 +99,7 @@ public class BookingServiceImpl implements BookingService {
 
 
     @Override
+    @Transactional
     public Booking getBookingByIdAndBookerOrOwner(long bookingId, long userId) {
         Booking booking = getBookingById(bookingId);
 
@@ -113,11 +115,13 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public Booking getBookingById(long bookingId) {
         return repository.findById(bookingId).orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
     }
 
     @Override
+    @Transactional
     public List<Booking> findBookingsByBooker_Id(long userId) {
         List<Booking> bookings = repository.findBookingsByBooker_Id(userId);
         bookings.sort(Comparator.comparing(Booking::getStart).reversed());
@@ -129,6 +133,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public List<Booking> findBookingsByItem_Owner(long userId) {
         List<Booking> bookings = repository.findBookingsByItem_Owner(userId);
         if (bookings.isEmpty()) {
@@ -152,6 +157,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public List<Booking> findBookingsByBooker_IdAndStatus_Waiting(long userId) {
         List<Booking> bookings = repository.findBookingsByBooker_Id(userId);
         List<Booking> result = new ArrayList<>();
@@ -165,6 +171,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public List<Booking> findBookingsByItem_OwnerAndStatus_Waiting(long userId) {
         List<Booking> bookings = repository.findBookingsByItem_Owner(userId);
         List<Booking> result = new ArrayList<>();
@@ -178,6 +185,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public List<Booking> findBookingsByItem_OwnerAndStatus_Rejected(long userId) {
         List<Booking> bookings = repository.findBookingsByItem_Owner(userId);
         List<Booking> result = new ArrayList<>();
@@ -191,6 +199,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public List<Booking> findBookingsByBooker_IdAndStatus_Rejected(long userId) {
         List<Booking> bookings = repository.findBookingsByBooker_Id(userId);
         List<Booking> result = new ArrayList<>();
@@ -204,6 +213,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public List<Booking> findPastBookingsByOwner_Id(long userId) {
         List<Booking> pastBookings = repository.findBookingsByItem_Owner(userId);
         LocalDateTime now = LocalDateTime.now();
@@ -212,6 +222,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public List<Booking> findPastBookingsByBookerId(long userId) {
         List<Booking> pastBookings = repository.findBookingsByBooker_Id(userId);
         LocalDateTime now = LocalDateTime.now();
@@ -220,6 +231,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public List<Booking> findCurrentBookingsByOwner_Id(long userId) {
         List<Booking> currentBookings = repository.findBookingsByItem_Owner(userId);
         LocalDateTime now = LocalDateTime.now();
@@ -228,6 +240,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public List<Booking> findCurrentBookingsByBookerId(long userId) {
         List<Booking> currentBookings = repository.findBookingsByBooker_Id(userId);
         LocalDateTime now = LocalDateTime.now();
