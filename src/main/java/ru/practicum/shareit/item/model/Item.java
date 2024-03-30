@@ -36,10 +36,10 @@ public class Item {
     @Column(name = "is_available", nullable = false)
     private Boolean available;
 
-    @Column(name = "owner", nullable = false)
+    @Column(name = "owner_id", nullable = false)
     private long owner;
 
-    @Column(name = "request", nullable = false)
+    @Column(name = "request_id", nullable = false)
     private long request;
 
     @OneToMany(mappedBy = "itemId", cascade = CascadeType.ALL)

@@ -26,22 +26,22 @@ public class Booking {
     private long id;
 
     @NotNull(groups = Create.class, message = " Время не может быть пустым")
-    @Column(name = "start", nullable = false)
+    @Column(name = "start_date", nullable = false)
     private LocalDateTime start;
 
     @NotNull(groups = Create.class, message = " Время не может быть пустым")
-    @Column(name = "finish", nullable = false)
+    @Column(name = "end_date", nullable = false)
     private LocalDateTime end;
 
     @ManyToOne
     @NotNull(groups = Create.class, message = "Предмет не может быть пустым")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    @JoinColumn(name = "itemId", nullable = false)
+    @JoinColumn(name = "item_id", nullable = false)
     private Item item;
 
     @ManyToOne
     @NotNull(groups = Create.class, message = "Бронирующий не может быть пустым")
-    @JoinColumn(name = "booker", nullable = false)
+    @JoinColumn(name = "booker_id", nullable = false)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private User booker;
 
