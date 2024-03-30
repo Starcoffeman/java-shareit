@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS comments
     text   varchar(512),
     item_id integer REFERENCES items(id),
     author_id   integer REFERENCES users(id)
+    created_at TIMESTAMP WITHOUT TIME ZONE
     );
 
 
