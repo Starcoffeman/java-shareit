@@ -1,9 +1,5 @@
 package ru.practicum.shareit.request;
 
-/**
- * TODO Sprint add-item-requests.
- */
-
 import lombok.Data;
 import ru.practicum.shareit.intf.Create;
 
@@ -25,7 +21,6 @@ public class ItemRequest {
     private String description;
 
     @NotNull(groups = Create.class, message = "Requestor не может быть равен null")
-    @NotBlank(groups = Create.class, message = "Requestor не может быть пустым")
     private Long requestor;
 
     @NotNull(groups = Create.class, message = " Время не может быть пустым")

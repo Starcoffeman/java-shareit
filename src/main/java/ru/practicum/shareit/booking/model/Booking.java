@@ -10,6 +10,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
+import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
@@ -26,27 +27,29 @@ public class Booking {
     private long id;
 
     @NotNull(groups = Create.class, message = " Время не может быть пустым")
-    @Column(name = "start_date", nullable = false)
+    @Future(groups = Create.class, message = "Время начала бронирования должно быть в будущем")
+    @Column(name = "start_date")
     private LocalDateTime start;
 
     @NotNull(groups = Create.class, message = " Время не может быть пустым")
-    @Column(name = "end_date", nullable = false)
+    @Future(groups = Create.class, message = "Время окончания бронирования должно быть в будущем")
+    @Column(name = "end_date")
     private LocalDateTime end;
 
     @ManyToOne
     @NotNull(groups = Create.class, message = "Предмет не может быть пустым")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    @JoinColumn(name = "item_id", nullable = false)
+    @JoinColumn(name = "item_id")
     private Item item;
 
     @ManyToOne
     @NotNull(groups = Create.class, message = "Бронирующий не может быть пустым")
-    @JoinColumn(name = "booker_id", nullable = false)
+    @JoinColumn(name = "booker_id")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private User booker;
 
     @NotNull(groups = Create.class, message = "Статус не может быть пустым")
-    @Column(name = "status", nullable = false)
+    @Column(name = "status")
     private BookingStatus status;
 }
 

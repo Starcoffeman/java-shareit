@@ -10,19 +10,34 @@ import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    List<Booking> findBookingsByBooker_Id(long userId);
+    List<Booking> findBookingsByItemOwner(long ownerId, Sort sort);
 
-    List<Booking> findBookingsByItem_Owner(long ownerId);
+    boolean existsBookingsByBookerIdOrItemOwner(long bookerId, long ownerId);
 
-    boolean existsBookingsByBooker_IdOrItem_Owner(long bookerId, long ownerId);
+    List<Booking> findBookingsByBookerIdOrItemOwner(long bookerId, long ownerId, Sort sort);
 
-    List<Booking> findBookingsByBooker_IdOrItem_Owner(long bookerId, long ownerId);
+    boolean existsByItemIdAndBookerIdAndStatusAndEndBefore(Long itemId, Long bookerId, BookingStatus status,
+                                                           LocalDateTime localDateTime);
 
-    boolean existsByItemIdAndBookerIdAndStatusAndEndBefore(Long itemId, Long bookerId, BookingStatus status, LocalDateTime localDateTime);
+    Booking findFirstBookingByItemIdAndStatusAndStartIsBefore(long itemId, BookingStatus bookingStatus,
+                                                              LocalDateTime now, Sort start);
 
-    Booking findFirstBookingByItemIdAndStatusAndStartIsBefore(long itemId, BookingStatus bookingStatus, LocalDateTime now, Sort start);
+    Booking findFirstBookingByItemIdAndStatusAndStartIsAfter(long itemId, BookingStatus bookingStatus,
+                                                             LocalDateTime now, Sort start);
 
-    Booking findFirstBookingByItemIdAndStatusAndStartIsAfter(long itemId, BookingStatus bookingStatus, LocalDateTime now, Sort start);
+    List<Booking> findBookingsByBookerIdOrderByStartDesc(long userId);
+
+    List<Booking> findBookingsByBookerIdAndStatus(long userId, BookingStatus bookingStatus, Sort start);
+
+    List<Booking> findBookingsByItemOwnerAndStatus(long userId, BookingStatus bookingStatus, Sort start);
+
+    List<Booking> findBookingsByItemOwnerAndStartBeforeAndEndAfter(long userId, LocalDateTime now, LocalDateTime now1);
+
+    List<Booking> findBookingsByBookerIdAndStartBeforeAndEndAfter(long userId, LocalDateTime now, LocalDateTime now1);
+
+    List<Booking> findBookingsByItemOwnerAndEndBeforeOrderByEndDesc(long userId, LocalDateTime now);
+
+    List<Booking> findBookingsByBookerIdAndEndBeforeOrderByEndDesc(long userId, LocalDateTime now);
 }
 
 

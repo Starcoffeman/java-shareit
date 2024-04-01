@@ -25,21 +25,21 @@ public class Item {
     private Long id;
 
     @NotBlank(groups = Create.class, message = "Имя не может быть пустым")
-    @Column(name = "name", nullable = false)
+    @Column(name = "name")
     private String name;
 
     @NotBlank(groups = Create.class, message = "Описание не может быть пустым")
-    @Column(name = "description", nullable = false)
+    @Column(name = "description")
     private String description;
 
     @NotNull(groups = Create.class, message = "Описание не может быть пустым")
-    @Column(name = "is_available", nullable = false)
+    @Column(name = "is_available")
     private Boolean available;
 
-    @Column(name = "owner_id", nullable = false)
+    @Column(name = "owner_id")
     private long owner;
 
-    @Column(name = "request_id", nullable = false)
+    @Column(name = "request_id")
     private long request;
 
     @OneToMany(mappedBy = "itemId", cascade = CascadeType.ALL)

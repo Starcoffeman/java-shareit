@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -12,14 +14,12 @@ import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Slf4j
 public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository repository;
@@ -29,22 +29,23 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public Booking setBookingApproval(long userId, long bookingId, boolean approved) {
-        Booking booking = repository.getReferenceById(bookingId);
-        if (booking.getItem().getOwner() == userId) {
+        Booking booking = repository.findById(bookingId).orElseThrow(() -> new ResourceNotFoundException("Booking with ID " + bookingId + " is not found."));
 
-            if (booking.getStatus() == BookingStatus.APPROVED) {
-                throw new ValidationException("Dsa");
-            }
-
-            if (approved) {
-                booking.setStatus(BookingStatus.APPROVED);
-            } else {
-                booking.setStatus(BookingStatus.REJECTED);
-            }
-            return repository.save(booking);
-        } else {
-            throw new ResourceNotFoundException("dasd");
+        if (booking.getItem().getOwner() != userId) {
+            throw new ResourceNotFoundException("User with ID " + userId + " is not the owner of the item.");
         }
+
+        if (booking.getStatus() == BookingStatus.APPROVED) {
+            throw new ValidationException("Booking with ID " + bookingId + " has already been approved.");
+        }
+
+        if (approved) {
+            booking.setStatus(BookingStatus.APPROVED);
+        } else {
+            booking.setStatus(BookingStatus.REJECTED);
+        }
+
+        return booking;
     }
 
     @Override
@@ -67,7 +68,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         if (itemRepository.getById(bookingDto.getItemId()).getAvailable() == false) {
-            throw new ValidationException("adsad");
+            throw new ValidationException("The item is not available for booking.");
         }
 
         if (bookingDto.getStart().isBefore(LocalDateTime.now())) {
@@ -97,9 +98,7 @@ public class BookingServiceImpl implements BookingService {
         return booking;
     }
 
-
     @Override
-    @Transactional
     public Booking getBookingByIdAndBookerOrOwner(long bookingId, long userId) {
         Booking booking = getBookingById(bookingId);
 
@@ -115,16 +114,13 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @Transactional
     public Booking getBookingById(long bookingId) {
         return repository.findById(bookingId).orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
     }
 
     @Override
-    @Transactional
-    public List<Booking> findBookingsByBooker_Id(long userId) {
-        List<Booking> bookings = repository.findBookingsByBooker_Id(userId);
-        bookings.sort(Comparator.comparing(Booking::getStart).reversed());
+    public List<Booking> findBookingsByBookerId(long userId) {
+        List<Booking> bookings = repository.findBookingsByBookerIdOrderByStartDesc(userId);
 
         if (bookings.isEmpty()) {
             throw new ResourceNotFoundException("Booking not found with Booker ID: " + userId);
@@ -133,118 +129,134 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @Transactional
-    public List<Booking> findBookingsByItem_Owner(long userId) {
-        List<Booking> bookings = repository.findBookingsByItem_Owner(userId);
+    public List<Booking> findBookingsByStateAndOwnerId(long userId, String state) {
+        if (!existsBookingByBookerIdOrItemOwner(userId, userId)) {
+            throw new ResourceNotFoundException("No bookings found for user with ID: " + userId);
+        }
+
+        if (state != null) {
+            switch (state) {
+                case "ALL":
+                    log.info("Retrieving all bookings for owner with ID: {}", userId);
+                    return findBookingsByItemOwner(userId);
+                case "FUTURE":
+                    log.info("Retrieving future bookings for owner with ID: {}", userId);
+                    return findBookingsByItemOwner(userId);
+                case "WAITING":
+                    log.info("Retrieving waiting bookings for owner with ID: {}", userId);
+                    return findBookingsByItemOwnerAndStatusWaiting(userId);
+                case "REJECTED":
+                    log.info("Retrieving rejected bookings for owner with ID: {}", userId);
+                    return findBookingsByItemOwnerAndStatusRejected(userId);
+                case "CURRENT":
+                    log.info("Retrieving current bookings for owner with ID: {}", userId);
+                    return findCurrentBookingsByOwnerId(userId);
+                case "PAST":
+                    log.info("Retrieving past bookings for owner with ID: {}", userId);
+                    return findPastBookingsByOwnerId(userId);
+                default:
+                    throw new ValidationException("Unknown state: " + state);
+            }
+        } else {
+            log.info("No state specified. Retrieving all bookings for owner with ID: {}", userId);
+            return findBookingsByBookerIdOrItemOwner(userId, userId);
+        }
+    }
+
+    public List<Booking> findPastBookingsByOwnerId(long userId) {
+        LocalDateTime now = LocalDateTime.now();
+        return repository.findBookingsByItemOwnerAndEndBeforeOrderByEndDesc(userId, now);
+    }
+
+    public List<Booking> findPastBookingsByBookerId(long userId) {
+        LocalDateTime now = LocalDateTime.now();
+        return repository.findBookingsByBookerIdAndEndBeforeOrderByEndDesc(userId, now);
+    }
+
+    public List<Booking> findCurrentBookingsByOwnerId(long userId) {
+        LocalDateTime now = LocalDateTime.now();
+        return repository.findBookingsByItemOwnerAndStartBeforeAndEndAfter(userId, now, now);
+    }
+
+    public List<Booking> findCurrentBookingsByBookerId(long userId) {
+        LocalDateTime now = LocalDateTime.now();
+        return repository.findBookingsByBookerIdAndStartBeforeAndEndAfter(userId, now, now);
+    }
+
+    @Override
+    public List<Booking> findBookingsByStateAndBookerId(long userId, String state) {
+        if (state != null) {
+            switch (state) {
+                case "ALL":
+                    log.info("Retrieving all bookings for booker with ID: {}", userId);
+                    return findBookingsByBookerId(userId);
+                case "FUTURE":
+                    log.info("Retrieving future bookings for booker with ID: {}", userId);
+                    return findBookingsByBookerId(userId);
+                case "WAITING":
+                    log.info("Retrieving waiting bookings for booker with ID: {}", userId);
+                    return findBookingsByBookerIdAndStatusWaiting(userId);
+                case "REJECTED":
+                    log.info("Retrieving rejected bookings for booker with ID: {}", userId);
+                    return findBookingsByBookerIdAndStatusRejected(userId);
+                case "PAST":
+                    log.info("Retrieving past bookings for booker with ID: {}", userId);
+                    return findPastBookingsByBookerId(userId);
+                case "CURRENT":
+                    log.info("Retrieving current bookings for booker with ID: {}", userId);
+                    return findCurrentBookingsByBookerId(userId);
+                default:
+                    throw new ValidationException("Unknown state: " + state);
+            }
+        } else {
+            log.info("No state specified. Retrieving all bookings for booker with ID: {}", userId);
+            return findBookingsByBookerIdOrItemOwner(userId, userId);
+        }
+    }
+
+    @Override
+    public boolean existsBookingByBookerIdOrItemOwner(long bookerId, long ownerId) {
+        return repository.existsBookingsByBookerIdOrItemOwner(bookerId, ownerId);
+    }
+
+    @Override
+    public List<Booking> findBookingsByItemOwner(long userId) {
+        List<Booking> bookings = repository.findBookingsByItemOwner(userId, Sort.by(Sort.Direction.DESC, "start"));
         if (bookings.isEmpty()) {
             throw new ResourceNotFoundException("Booking not found with Owner ID: " + userId);
         }
 
-        bookings.sort(Comparator.comparing(Booking::getStart).reversed());
         return bookings;
     }
 
     @Override
-    public boolean existsBookingByBooker_IdOrItem_Owner(long bookerId, long ownerId) {
-        return repository.existsBookingsByBooker_IdOrItem_Owner(bookerId, ownerId);
-    }
-
-    @Override
-    public List<Booking> findBookingsByBooker_IdOrItem_Owner(long bookerId, long ownerId) {
-        List<Booking> bookings = repository.findBookingsByBooker_IdOrItem_Owner(bookerId, ownerId);
-        bookings.sort(Comparator.comparing(Booking::getStart).reversed());
+    public List<Booking> findBookingsByBookerIdOrItemOwner(long bookerId, long ownerId) {
+        List<Booking> bookings = repository.findBookingsByBookerIdOrItemOwner(bookerId, ownerId, Sort.by(Sort.Direction.DESC, "start"));
         return bookings;
     }
 
     @Override
-    @Transactional
-    public List<Booking> findBookingsByBooker_IdAndStatus_Waiting(long userId) {
-        List<Booking> bookings = repository.findBookingsByBooker_Id(userId);
-        List<Booking> result = new ArrayList<>();
-        for (Booking booking : bookings) {
-            if (booking.getStatus() == BookingStatus.WAITING) {
-                result.add(booking);
-            }
-        }
-        result.sort(Comparator.comparing(Booking::getStart).reversed());
-        return result;
+    public List<Booking> findBookingsByBookerIdAndStatusWaiting(long userId) {
+        List<Booking> bookings = repository.findBookingsByBookerIdAndStatus(userId, BookingStatus.WAITING, Sort.by(Sort.Direction.DESC, "start"));
+        return bookings;
     }
 
     @Override
-    @Transactional
-    public List<Booking> findBookingsByItem_OwnerAndStatus_Waiting(long userId) {
-        List<Booking> bookings = repository.findBookingsByItem_Owner(userId);
-        List<Booking> result = new ArrayList<>();
-        for (Booking booking : bookings) {
-            if (booking.getStatus() == BookingStatus.WAITING) {
-                result.add(booking);
-            }
-        }
-        result.sort(Comparator.comparing(Booking::getStart).reversed());
-        return result;
+    public List<Booking> findBookingsByItemOwnerAndStatusWaiting(long userId) {
+        List<Booking> bookings = repository.findBookingsByItemOwnerAndStatus(userId, BookingStatus.WAITING, Sort.by(Sort.Direction.DESC, "start"));
+        return bookings;
     }
 
     @Override
-    @Transactional
-    public List<Booking> findBookingsByItem_OwnerAndStatus_Rejected(long userId) {
-        List<Booking> bookings = repository.findBookingsByItem_Owner(userId);
-        List<Booking> result = new ArrayList<>();
-        for (Booking booking : bookings) {
-            if (booking.getStatus() == BookingStatus.REJECTED) {
-                result.add(booking);
-            }
-        }
-        result.sort(Comparator.comparing(Booking::getStart).reversed());
-        return result;
+    public List<Booking> findBookingsByItemOwnerAndStatusRejected(long userId) {
+        List<Booking> bookings = repository.findBookingsByItemOwnerAndStatus(userId, BookingStatus.REJECTED, Sort.by(Sort.Direction.DESC, "start"));
+        return bookings;
     }
 
     @Override
-    @Transactional
-    public List<Booking> findBookingsByBooker_IdAndStatus_Rejected(long userId) {
-        List<Booking> bookings = repository.findBookingsByBooker_Id(userId);
-        List<Booking> result = new ArrayList<>();
-        for (Booking booking : bookings) {
-            if (booking.getStatus() == BookingStatus.REJECTED) {
-                result.add(booking);
-            }
-        }
-        result.sort(Comparator.comparing(Booking::getStart).reversed());
-        return result;
+    public List<Booking> findBookingsByBookerIdAndStatusRejected(long userId) {
+        List<Booking> bookings = repository.findBookingsByBookerIdAndStatus(userId, BookingStatus.REJECTED, Sort.by(Sort.Direction.DESC, "start"));
+        return bookings;
     }
 
-    @Override
-    @Transactional
-    public List<Booking> findPastBookingsByOwner_Id(long userId) {
-        List<Booking> pastBookings = repository.findBookingsByItem_Owner(userId);
-        LocalDateTime now = LocalDateTime.now();
-
-        return pastBookings.stream().filter(booking -> booking.getEnd().isBefore(now)).sorted(Comparator.comparing(Booking::getEnd).reversed()).collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional
-    public List<Booking> findPastBookingsByBookerId(long userId) {
-        List<Booking> pastBookings = repository.findBookingsByBooker_Id(userId);
-        LocalDateTime now = LocalDateTime.now();
-
-        return pastBookings.stream().filter(booking -> booking.getEnd().isBefore(now)).sorted(Comparator.comparing(Booking::getEnd).reversed()).collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional
-    public List<Booking> findCurrentBookingsByOwner_Id(long userId) {
-        List<Booking> currentBookings = repository.findBookingsByItem_Owner(userId);
-        LocalDateTime now = LocalDateTime.now();
-
-        return currentBookings.stream().filter(booking -> booking.getStart().isBefore(now) && booking.getEnd().isAfter(now)).sorted(Comparator.comparing(Booking::getStart)).collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional
-    public List<Booking> findCurrentBookingsByBookerId(long userId) {
-        List<Booking> currentBookings = repository.findBookingsByBooker_Id(userId);
-        LocalDateTime now = LocalDateTime.now();
-
-        return currentBookings.stream().filter(booking -> booking.getStart().isBefore(now) && booking.getEnd().isAfter(now)).sorted(Comparator.comparing(Booking::getStart)).collect(Collectors.toList());
-    }
 }

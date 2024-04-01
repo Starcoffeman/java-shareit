@@ -14,10 +14,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("UPDATE User u SET u.name = :name, u.email = :email WHERE u.id = :userId")
     void updateUser(@Param("userId") long userId, @Param("name") String name, @Param("email") String email);
 
-    @Modifying
-    @Query("DELETE FROM User u WHERE u.id = :userId")
     void deleteUserById(@Param("userId") long userId);
 
-    @Query("SELECT MAX(u.id) FROM User u")
-    Long getMaxUserId();
 }

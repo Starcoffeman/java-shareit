@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import ru.practicum.shareit.intf.Create;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Data
@@ -23,5 +24,6 @@ public class CommentDto {
     @NotBlank(groups = Create.class, message = "Имя не может быть пустым")
     private String authorName;
 
+    @NotNull(message = "Дата создания комментария не может быть пустой")
     private LocalDateTime created;
 }

@@ -28,18 +28,17 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto saveUser(UserDto userDto) {
-        if (userDto.getName() == null) {
+        if (userDto.getName() == null || userDto.getName().isBlank()) {
             throw new ValidationException("Имя не может быть пустым");
         }
 
-        if (userDto.getEmail() == null) {
+        if (userDto.getEmail() == null || userDto.getEmail().isBlank()) {
             throw new ValidationException("Электронная почта не может быть пустым");
         }
 
         User user = repository.save(UserMapper.mapToNewUser(userDto));
         return UserMapper.mapToUserDto(user);
     }
-
 
     @Override
     @Transactional

@@ -78,7 +78,8 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public ItemDto getItemById(long userId, long itemId) {
-        Item item = itemRepository.findById(itemId).orElseThrow(() -> new ResourceNotFoundException("Item not found with ID: " + itemId));
+        Item item = itemRepository.findById(itemId).orElseThrow(()
+                -> new ResourceNotFoundException("Item not found with ID: " + itemId));
         ItemDto itemDto = ItemMapper.mapToItemDto(item);
 
         if (item.getOwner() != userId) {
@@ -129,17 +130,17 @@ public class ItemServiceImpl implements ItemService {
         Item item = ItemMapper.mapToNewItem(itemDto);
         item.setOwner(userId);
         item = itemRepository.save(item);
-        ItemDto a = ItemMapper.mapToItemDto(item);
-        a.setNextBooking(findNextBookingByItemId(item.getId()));
-        a.setLastBooking(findLastBookingByItemId(item.getId()));
-        a.setComments(CommentMapper.mapToCommentDto(commentRepository.findAllByItemId(item.getId())));
-        return a;
+        ItemDto dto = ItemMapper.mapToItemDto(item);
+        dto.setNextBooking(findNextBookingByItemId(item.getId()));
+        dto.setLastBooking(findLastBookingByItemId(item.getId()));
+        dto.setComments(CommentMapper.mapToCommentDto(commentRepository.findAllByItemId(item.getId())));
+        return dto;
     }
 
     @Override
     @Transactional
     public List<ItemDto> searchItems(String searchText) {
-        if (searchText.equals("")) {
+        if (searchText.isBlank()) {
             return new ArrayList<>();
         }
         List<Item> items = itemRepository.findByDescriptionContainingIgnoreCaseAndAvailableIsTrueOrNameContainingIgnoreCaseAndAvailableIsTrue(searchText, searchText);
@@ -149,15 +150,18 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public CommentDto addComment(long userId, long itemId, String text) {
-        boolean hasFutureBooking = bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndBefore(itemId, userId, BookingStatus.APPROVED, LocalDateTime.now());
+        boolean hasFutureBooking = bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndBefore(itemId, userId,
+                BookingStatus.APPROVED, LocalDateTime.now());
         if (!hasFutureBooking) {
-            throw new ValidationException("User with ID " + userId + " has a future booking for item with ID " + itemId + ". Cannot add comment until the booking is completed.");
+            throw new ValidationException("User with ID " + userId + " has a future booking for item with ID " + itemId
+                    + ". Cannot add comment until the booking is completed.");
         }
 
-        if (text.equals("") || text.isEmpty()) {
-            throw new ValidationException("");
+        if (text.isBlank()) {
+            throw new ValidationException("Comment text cannot be empty");
         }
-        Item item = itemRepository.findById(itemId).orElseThrow(() -> new ResourceNotFoundException("Item not found with ID: " + itemId));
+        Item item = itemRepository.findById(itemId).orElseThrow(()
+                -> new ResourceNotFoundException("Item not found with ID: " + itemId));
 
         UserDto user = userService.getUserById(userId);
 
@@ -181,13 +185,15 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private BookingDto findLastBookingByItemId(long itemId) {
-        Booking lastBookings = bookingRepository.findFirstBookingByItemIdAndStatusAndStartIsBefore(itemId, BookingStatus.APPROVED, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
+        Booking lastBookings = bookingRepository.findFirstBookingByItemIdAndStatusAndStartIsBefore(itemId,
+                BookingStatus.APPROVED, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
         BookingDto lastBookingsDTO = BookingMapper.mapToBookingDto(lastBookings);
         return lastBookingsDTO;
     }
 
     private BookingDto findNextBookingByItemId(long itemId) {
-        Booking nextBookings = bookingRepository.findFirstBookingByItemIdAndStatusAndStartIsAfter(itemId, BookingStatus.APPROVED, LocalDateTime.now(), Sort.by(Sort.Direction.ASC, "start"));
+        Booking nextBookings = bookingRepository.findFirstBookingByItemIdAndStatusAndStartIsAfter(itemId,
+                BookingStatus.APPROVED, LocalDateTime.now(), Sort.by(Sort.Direction.ASC, "start"));
         BookingDto nextBookingsDTO = BookingMapper.mapToBookingDto(nextBookings);
         return nextBookingsDTO;
     }

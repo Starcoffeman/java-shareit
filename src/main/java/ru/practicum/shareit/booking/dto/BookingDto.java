@@ -5,7 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.intf.Create;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Data
@@ -16,10 +18,13 @@ public class BookingDto {
 
     private long id;
 
+    @NotNull(groups = Create.class, message = " Время не может быть пустым")
     private LocalDateTime start;
 
+    @NotNull(groups = Create.class, message = " Время не может быть пустым")
     private LocalDateTime end;
 
+    @NotNull(groups = Create.class, message = "Предмет не может быть пустым")
     private long itemId;
 
     private long bookerId;

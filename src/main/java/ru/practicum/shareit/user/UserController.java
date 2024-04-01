@@ -19,12 +19,14 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public UserDto saveNewUser(@Validated(Create.class) @RequestBody UserDto userDto) {
         log.info("Received request to save new user");
         return userService.saveUser(userDto);
     }
 
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public List<UserDto> getAllUsers() {
         log.info("Received request to get all users");
         return userService.getAllUsers();
@@ -51,5 +53,4 @@ public class UserController {
         userService.deleteUserById(userId);
         return "Пользователь успешно удалён";
     }
-
 }

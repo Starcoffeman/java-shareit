@@ -15,28 +15,25 @@ public interface BookingService {
 
     Booking getBookingById(long bookingId);
 
-    List<Booking> findBookingsByItem_Owner(long userId);
+    List<Booking> findBookingsByItemOwner(long userId);
 
-    List<Booking> findBookingsByBooker_Id(long userId);
+    List<Booking> findBookingsByBookerId(long userId);
 
-    boolean existsBookingByBooker_IdOrItem_Owner(long bookerId, long ownerId);
+    boolean existsBookingByBookerIdOrItemOwner(long bookerId, long ownerId);
 
-    List<Booking> findBookingsByBooker_IdOrItem_Owner(long bookerId, long ownerId);
+    List<Booking> findBookingsByBookerIdOrItemOwner(long bookerId, long ownerId);
 
-    List<Booking> findBookingsByBooker_IdAndStatus_Waiting(long userId);
+    List<Booking> findBookingsByBookerIdAndStatusWaiting(long userId);
 
-    List<Booking> findBookingsByItem_OwnerAndStatus_Waiting(long userId);
+    List<Booking> findBookingsByItemOwnerAndStatusWaiting(long userId);
 
-    List<Booking> findBookingsByItem_OwnerAndStatus_Rejected(long userId);
+    List<Booking> findBookingsByItemOwnerAndStatusRejected(long userId);
 
-    List<Booking> findBookingsByBooker_IdAndStatus_Rejected(long userId);
+    List<Booking> findBookingsByBookerIdAndStatusRejected(long userId);
 
-    List<Booking> findPastBookingsByOwner_Id(long userId);
+    List<Booking> findBookingsByStateAndOwnerId(long userId, String state);
 
-    List<Booking> findPastBookingsByBookerId(long userId);
+    List<Booking> findBookingsByStateAndBookerId(long userId, String state);
 
-    List<Booking> findCurrentBookingsByBookerId(long userId);
-
-    List<Booking> findCurrentBookingsByOwner_Id(long userId);
 
 }

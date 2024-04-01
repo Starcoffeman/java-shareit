@@ -5,9 +5,6 @@ import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Mapper
 @Component
 public class BookingMapper {
@@ -24,7 +21,6 @@ public class BookingMapper {
         bookingDto.setBookerId(booking.getBooker().getId());
         bookingDto.setItemId(booking.getItem().getId());
         bookingDto.setStatus(booking.getStatus());
-
         return bookingDto;
     }
 
