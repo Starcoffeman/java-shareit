@@ -11,17 +11,25 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ErrorHandler {
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ErrorMessage> handleValidationException(final ValidationException e) {
-        log.info(e.getMessage());
+        log.warn(e.getMessage());
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .status(HttpStatus.BAD_REQUEST) //400
                 .body(new ErrorMessage(e.getMessage()));
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorMessage> handleNotFoundException(final ResourceNotFoundException e) {
-        log.info(e.getMessage());
+        log.warn(e.getMessage());
         return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
+                .status(HttpStatus.NOT_FOUND) //404
+                .body(new ErrorMessage(e.getMessage()));
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ErrorMessage> handleConflictException(final ConflictException e) {
+        log.warn(e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT) //409
                 .body(new ErrorMessage(e.getMessage()));
     }
 }
