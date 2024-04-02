@@ -29,7 +29,8 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public Booking setBookingApproval(long userId, long bookingId, boolean approved) {
-        Booking booking = repository.findById(bookingId).orElseThrow(() -> new ResourceNotFoundException("Booking with ID " + bookingId + " is not found."));
+        Booking booking = repository.findById(bookingId).orElseThrow(()
+                -> new ResourceNotFoundException("Booking with ID " + bookingId + " is not found."));
 
         if (booking.getItem().getOwner() != userId) {
             throw new ResourceNotFoundException("User with ID " + userId + " is not the owner of the item.");
@@ -115,7 +116,8 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Booking getBookingById(long bookingId) {
-        return repository.findById(bookingId).orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
+        return repository.findById(bookingId).orElseThrow(()
+                -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
     }
 
     @Override
@@ -221,7 +223,8 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<Booking> findBookingsByItemOwner(long userId) {
-        List<Booking> bookings = repository.findBookingsByItemOwner(userId, Sort.by(Sort.Direction.DESC, "start"));
+        List<Booking> bookings = repository.findBookingsByItemOwner(userId,
+                Sort.by(Sort.Direction.DESC, "start"));
         if (bookings.isEmpty()) {
             throw new ResourceNotFoundException("Booking not found with Owner ID: " + userId);
         }
@@ -231,32 +234,36 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<Booking> findBookingsByBookerIdOrItemOwner(long bookerId, long ownerId) {
-        List<Booking> bookings = repository.findBookingsByBookerIdOrItemOwner(bookerId, ownerId, Sort.by(Sort.Direction.DESC, "start"));
+        List<Booking> bookings = repository.findBookingsByBookerIdOrItemOwner(bookerId, ownerId,
+                Sort.by(Sort.Direction.DESC, "start"));
         return bookings;
     }
 
     @Override
     public List<Booking> findBookingsByBookerIdAndStatusWaiting(long userId) {
-        List<Booking> bookings = repository.findBookingsByBookerIdAndStatus(userId, BookingStatus.WAITING, Sort.by(Sort.Direction.DESC, "start"));
+        List<Booking> bookings = repository.findBookingsByBookerIdAndStatus(userId, BookingStatus.WAITING,
+                Sort.by(Sort.Direction.DESC, "start"));
         return bookings;
     }
 
     @Override
     public List<Booking> findBookingsByItemOwnerAndStatusWaiting(long userId) {
-        List<Booking> bookings = repository.findBookingsByItemOwnerAndStatus(userId, BookingStatus.WAITING, Sort.by(Sort.Direction.DESC, "start"));
+        List<Booking> bookings = repository.findBookingsByItemOwnerAndStatus(userId, BookingStatus.WAITING,
+                Sort.by(Sort.Direction.DESC, "start"));
         return bookings;
     }
 
     @Override
     public List<Booking> findBookingsByItemOwnerAndStatusRejected(long userId) {
-        List<Booking> bookings = repository.findBookingsByItemOwnerAndStatus(userId, BookingStatus.REJECTED, Sort.by(Sort.Direction.DESC, "start"));
+        List<Booking> bookings = repository.findBookingsByItemOwnerAndStatus(userId, BookingStatus.REJECTED,
+                Sort.by(Sort.Direction.DESC, "start"));
         return bookings;
     }
 
     @Override
     public List<Booking> findBookingsByBookerIdAndStatusRejected(long userId) {
-        List<Booking> bookings = repository.findBookingsByBookerIdAndStatus(userId, BookingStatus.REJECTED, Sort.by(Sort.Direction.DESC, "start"));
+        List<Booking> bookings = repository.findBookingsByBookerIdAndStatus(userId, BookingStatus.REJECTED,
+                Sort.by(Sort.Direction.DESC, "start"));
         return bookings;
     }
-
 }
