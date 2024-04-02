@@ -165,24 +165,20 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    public List<Booking> findPastBookingsByOwnerId(long userId) {
-        LocalDateTime now = LocalDateTime.now();
-        return repository.findBookingsByItemOwnerAndEndBeforeOrderByEndDesc(userId, now);
+    private List<Booking> findPastBookingsByOwnerId(long userId) {
+        return repository.findBookingsByItemOwnerAndEndBeforeOrderByEndDesc(userId, LocalDateTime.now());
     }
 
-    public List<Booking> findPastBookingsByBookerId(long userId) {
-        LocalDateTime now = LocalDateTime.now();
-        return repository.findBookingsByBookerIdAndEndBeforeOrderByEndDesc(userId, now);
+    private List<Booking> findPastBookingsByBookerId(long userId) {
+        return repository.findBookingsByBookerIdAndEndBeforeOrderByEndDesc(userId, LocalDateTime.now());
     }
 
-    public List<Booking> findCurrentBookingsByOwnerId(long userId) {
-        LocalDateTime now = LocalDateTime.now();
-        return repository.findBookingsByItemOwnerAndStartBeforeAndEndAfter(userId, now, now);
+    private List<Booking> findCurrentBookingsByOwnerId(long userId) {
+        return repository.findBookingsByItemOwnerAndStartBeforeAndEndAfter(userId, LocalDateTime.now(), LocalDateTime.now());
     }
 
-    public List<Booking> findCurrentBookingsByBookerId(long userId) {
-        LocalDateTime now = LocalDateTime.now();
-        return repository.findBookingsByBookerIdAndStartBeforeAndEndAfter(userId, now, now);
+    private List<Booking> findCurrentBookingsByBookerId(long userId) {
+        return repository.findBookingsByBookerIdAndStartBeforeAndEndAfter(userId, LocalDateTime.now(), LocalDateTime.now());
     }
 
     @Override

@@ -31,7 +31,7 @@ public class ItemController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ItemDto add(@RequestHeader(USER_ID) long userId,
+    public ItemDto saveItem(@RequestHeader(USER_ID) long userId,
                        @Validated(Create.class) @RequestBody ItemDto itemDto) {
         log.info("Добавление предмета у пользователя под id: {}", userId);
         return itemService.saveItem(userId, itemDto);
@@ -47,7 +47,7 @@ public class ItemController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<ItemDto> findByOwnerId(@RequestHeader(USER_ID) long userId) {
+    public List<ItemDto> findItemsByOwner(@RequestHeader(USER_ID) long userId) {
         log.info("Вывод всех предметов у пользователя под id: {}", userId);
         return itemService.findItemsByOwner(userId);
     }

@@ -20,7 +20,7 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDto saveNewUser(@Validated(Create.class) @RequestBody UserDto userDto) {
+    public UserDto saveUser(@Validated(Create.class) @RequestBody UserDto userDto) {
         log.info("Received request to save new user");
         return userService.saveUser(userDto);
     }
@@ -48,7 +48,7 @@ public class UserController {
 
     @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public String delete(@PathVariable("userId") long userId) {
+    public String deleteUserById(@PathVariable("userId") long userId) {
         log.info("Удалён пользователь под id: {}", userId);
         userService.deleteUserById(userId);
         return "Пользователь успешно удалён";

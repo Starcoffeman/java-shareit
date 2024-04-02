@@ -11,6 +11,7 @@ import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.Future;
+import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
@@ -27,7 +28,7 @@ public class Booking {
     private long id;
 
     @NotNull(groups = Create.class, message = " Время не может быть пустым")
-    @Future(groups = Create.class, message = "Время начала бронирования должно быть в будущем")
+    @FutureOrPresent(groups = Create.class, message = "Время начала бронирования должно быть в будущем")
     @Column(name = "start_date")
     private LocalDateTime start;
 
