@@ -1,22 +1,25 @@
 package ru.practicum.shareit.item.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.comment.model.Comment;
 import ru.practicum.shareit.intf.Create;
+import ru.practicum.shareit.request.ItemRequest;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
+@Table(name = "items", schema = "public")
 public class Item {
 
     @Id
@@ -24,17 +27,25 @@ public class Item {
     private Long id;
 
     @NotBlank(groups = Create.class, message = "Имя не может быть пустым")
+    @Column(name = "name")
     private String name;
 
     @NotBlank(groups = Create.class, message = "Описание не может быть пустым")
+    @Column(name = "description")
     private String description;
 
     @NotNull(groups = Create.class, message = "Описание не может быть пустым")
+    @Column(name = "is_available")
     private Boolean available;
 
-    @JsonIgnore
-    private Long owner;
+    @Column(name = "owner_id")
+    private long owner;
 
-    @JsonIgnore
-    private Long request;
+    @ManyToOne
+    @JoinColumn(name = "request_id")
+    private ItemRequest request;
+
+    @OneToMany(mappedBy = "itemId", cascade = CascadeType.ALL)
+    private List<Comment> comments;
+
 }
