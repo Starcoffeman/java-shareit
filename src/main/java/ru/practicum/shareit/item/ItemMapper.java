@@ -31,10 +31,9 @@ public class ItemMapper {
             itemDto.setComments(commentDtos);
         }
 
-        if(item.getRequestId()!=null){
+        if (item.getRequestId() != null) {
             itemDto.setRequestId(item.getRequestId().getRequestor());
         }
-
         return itemDto;
     }
 
@@ -50,7 +49,7 @@ public class ItemMapper {
 
     public static List<Item> mapToItemDto(List<ItemDto> items) {
         List<Item> result = new ArrayList<>();
-        if(items.isEmpty()){
+        if (items.isEmpty()) {
             return new ArrayList<>();
         }
 
