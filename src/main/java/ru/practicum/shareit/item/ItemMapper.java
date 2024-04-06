@@ -6,8 +6,6 @@ import ru.practicum.shareit.comment.CommentMapper;
 import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.request.ItemRequest;
-import ru.practicum.shareit.request.ItemRequestMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,10 +31,9 @@ public class ItemMapper {
             itemDto.setComments(commentDtos);
         }
 
-        if(item.getRequestId()!=null){
+        if (item.getRequestId() != null) {
             itemDto.setRequestId(item.getRequestId().getRequestor());
         }
-
         return itemDto;
     }
 
@@ -52,7 +49,7 @@ public class ItemMapper {
 
     public static List<Item> mapToItemDto(List<ItemDto> items) {
         List<Item> result = new ArrayList<>();
-        if(items.isEmpty()){
+        if (items.isEmpty()) {
             return new ArrayList<>();
         }
 
