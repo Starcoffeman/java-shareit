@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -42,8 +43,8 @@ public class Item {
     private long owner;
 
     @ManyToOne
-    @JoinColumn(name = "request_id")
-    private ItemRequest request;
+    @JoinColumn(name = "requestId")
+    private ItemRequest requestId;
 
     @OneToMany(mappedBy = "itemId", cascade = CascadeType.ALL)
     private List<Comment> comments;
