@@ -18,6 +18,9 @@ import ru.practicum.shareit.exceptions.ResourceNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.ItemRequestRepository;
+import ru.practicum.shareit.request.ItemRequestService;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
 
@@ -35,6 +38,7 @@ public class ItemServiceImpl implements ItemService {
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
     private final CommentService commentService;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Override
     public List<ItemDto> findItemsByOwner(long userId) {
@@ -103,7 +107,6 @@ public class ItemServiceImpl implements ItemService {
         }
         return commentDtos;
     }
-
     @Override
     @Transactional
     public ItemDto saveItem(long userId, ItemDto itemDto) {
@@ -124,15 +127,28 @@ public class ItemServiceImpl implements ItemService {
             throw new ResourceNotFoundException("Отсутствует user под id:");
         }
 
+
+
         Item item = ItemMapper.mapToNewItem(itemDto);
         item.setOwner(userId);
+        if(itemDto.getRequestId()==0 ){
+            item.setRequestId(null);
+        } else {
+            item.setRequestId(itemRequestRepository.findItemRequestByRequestor(itemDto.getRequestId()));
+        }
         item = itemRepository.save(item);
         ItemDto dto = ItemMapper.mapToItemDto(item);
         dto.setNextBooking(findNextBookingByItemId(item.getId()));
         dto.setLastBooking(findLastBookingByItemId(item.getId()));
         dto.setComments(CommentMapper.mapToCommentDto(commentRepository.findAllByItemId(item.getId())));
+        if(itemDto.getRequestId()==0 ){
+            dto.setRequestId(0);
+        } else {
+            dto.setRequestId(itemDto.getRequestId());
+        }
         return dto;
     }
+
 
     @Override
     public List<ItemDto> searchItems(String searchText) {
@@ -142,6 +158,16 @@ public class ItemServiceImpl implements ItemService {
         List<Item> items = itemRepository.findByDescriptionContainingIgnoreCaseAndAvailableIsTrueOrNameContainingIgnoreCaseAndAvailableIsTrue(searchText, searchText);
         return ItemMapper.mapToItemDto(items);
     }
+
+//    @Override
+//    public List<ItemDto> findItemsByRequestId(long requestId) {
+//        List<Item> items = itemRepository.findItemsByRequestId(requestId);
+//        if(items==null){
+//            re
+//        }
+//
+//        return ItemMapper.mapToItemDto(items);
+//    }
 
     @Override
     @Transactional
