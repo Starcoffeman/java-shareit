@@ -21,9 +21,6 @@ public class UserRepositoryTest {
     @Autowired
     private UserRepository repository;
 
-    @InjectMocks
-    private UserServiceImpl userService;
-
     @Test
     public void testEmptyUsers() {
         List<User> users = repository.findAll();
@@ -36,7 +33,7 @@ public class UserRepositoryTest {
         repository.save(user);
         assertEquals(1, repository.findAll().size());
     }
-    
+
     @Test
     public void testExistsByEmail() {
         String email = "test@example.com";
