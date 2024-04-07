@@ -70,36 +70,3 @@ public class ItemMapper {
     }
 }
 
-//package ru.practicum.shareit.item;
-//
-//import org.mapstruct.Mapper;
-//import org.mapstruct.Mapping;
-//import org.mapstruct.factory.Mappers;
-//import org.springframework.stereotype.Component;
-//import ru.practicum.shareit.comment.CommentMapper;
-//import ru.practicum.shareit.comment.dto.CommentDto;
-//import ru.practicum.shareit.item.dto.ItemDto;
-//import ru.practicum.shareit.item.model.Item;
-//import ru.practicum.shareit.request.ItemRequest;
-//
-//import java.util.ArrayList;
-//import java.util.List;
-//
-//@Mapper
-//@Component
-//public interface ItemMapper {
-//
-//    ItemMapper INSTANCE = Mappers.getMapper(ItemMapper.class);
-//
-//    @Mapping(source = "requestId.id", target = "requestId")
-//    ItemDto mapToItemDto(Item item);
-//
-//    List<ItemDto> mapToItemDto(List<Item> items);
-//
-//    List<Item> mapToItem(List<ItemDto> items);
-//
-//
-//    @Mapping(target = "owner", ignore = true)
-//    @Mapping(target = "requestId", source = "itemDto.requestId", defaultValue = "null")
-//    Item mapToNewItem(ItemDto itemDto);
-//}

@@ -8,7 +8,6 @@ import ru.practicum.shareit.comment.model.Comment;
 import ru.practicum.shareit.intf.Create;
 import ru.practicum.shareit.request.model.ItemRequest;
 
-
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;

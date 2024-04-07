@@ -15,7 +15,6 @@ public interface BookingService {
 
     Booking getBookingById(long bookingId);
 
-
     List<Booking> findBookingsByBookerId(long userId, int from, int size);
 
     boolean existsBookingByBookerIdOrItemOwner(long bookerId, long ownerId);
@@ -30,8 +29,9 @@ public interface BookingService {
 
     List<Booking> findBookingsByBookerIdAndStatusRejected(long userId);
 
-    List<Booking> findBookingsByStateAndOwnerId(long userId, String state,int from, int size);
-    List<Booking> findBookingsByStateAndBookerId(long userId, String state,int from,int size);
+    List<Booking> findBookingsByStateAndOwnerId(long userId, String state, int from, int size);
+
+    List<Booking> findBookingsByStateAndBookerId(long userId, String state, int from, int size);
 
     List<Booking> findBookingsByItemOwner(long userId, int from, int size);
 }
