@@ -2,14 +2,15 @@ package ru.practicum.shareit.comment;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.comment.model.Comment;
 import ru.practicum.shareit.exceptions.ResourceNotFoundException;
 import ru.practicum.shareit.user.UserService;
 
+import javax.transaction.Transactional;
+
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepository;
