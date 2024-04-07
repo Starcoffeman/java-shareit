@@ -6,8 +6,6 @@ import lombok.Data;
 import ru.practicum.shareit.intf.Create;
 import ru.practicum.shareit.item.dto.ItemDto;
 
-
-import javax.persistence.Column;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
