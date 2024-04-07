@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.user.UserService;
 
 import java.util.List;
 
@@ -21,8 +20,8 @@ public class ItemRequestController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    public ItemRequestDto saveRequest(@RequestHeader(USER_ID) long userId,@RequestBody ItemRequestDto itemRequestDto) {
-        return itemRequestService.saveRequest(userId,itemRequestDto);
+    public ItemRequestDto saveRequest(@RequestHeader(USER_ID) long userId, @RequestBody ItemRequestDto itemRequestDto) {
+        return itemRequestService.saveRequest(userId, itemRequestDto);
     }
 
     @GetMapping("/all")
@@ -30,7 +29,7 @@ public class ItemRequestController {
     public List<ItemRequestDto> getAllRequests(@RequestHeader(USER_ID) long userId,
                                                @RequestParam(required = false, defaultValue = "0") int from,
                                                @RequestParam(required = false, defaultValue = "100") int size) {
-        return itemRequestService.getAllRequests(userId,from,size);
+        return itemRequestService.getAllRequests(userId, from, size);
     }
 
     @GetMapping("/{requestId}")

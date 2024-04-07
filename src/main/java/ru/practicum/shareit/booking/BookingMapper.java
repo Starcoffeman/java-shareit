@@ -23,6 +23,4 @@ public class BookingMapper {
         bookingDto.setStatus(booking.getStatus());
         return bookingDto;
     }
-
-
 }

@@ -7,7 +7,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestHeader;
 import ru.practicum.shareit.exceptions.ResourceNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.ItemMapper;
@@ -16,11 +15,8 @@ import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.UserService;
 
-import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static ru.practicum.shareit.item.ItemController.USER_ID;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +35,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
             throw new ResourceNotFoundException("Отсутствует user под id:");
         }
 
-        if (itemRequestDto.getDescription() == null||itemRequestDto.getDescription().isBlank()) {
+        if (itemRequestDto.getDescription() == null || itemRequestDto.getDescription().isBlank()) {
             throw new ValidationException("Отсутствует user под id:");
         }
 
@@ -63,22 +59,21 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
         Pageable pageable = PageRequest.of(from, size, Sort.by(Sort.Direction.DESC, "created"));
 
-        Page<ItemRequest> page = repository.findItemRequestsByRequestorNot(userId,pageable);
+        Page<ItemRequest> page = repository.findItemRequestsByRequestorNot(userId, pageable);
 
         List<ItemRequest> requests = page.getContent();
 
         return ItemRequestMapper.mapToItemDto(requests);
     }
 
-
     @Override
     public List<ItemRequestDto> findItemRequestsById(long userId) {
-        if (userService.getUserById(userId) == null ) {
+        if (userService.getUserById(userId) == null) {
             throw new ResourceNotFoundException("Отсутствует user под id:");
         }
 
         List<ItemRequest> request = repository.findItemRequestsByRequestor(userId);
-        if(request.isEmpty()){
+        if (request.isEmpty()) {
             return new ArrayList<>();
         }
 
@@ -87,19 +82,18 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public ItemRequestDto getRequestById(long requestId, long userId) {
-        if(userService.getUserById(userId)==null){
+        if (userService.getUserById(userId) == null) {
             throw new ResourceNotFoundException("ad");
         }
 
-        if(repository.findItemRequestById(requestId)==null){
+        if (repository.findItemRequestById(requestId) == null) {
             throw new ResourceNotFoundException("asda");
         }
 
-        if(repository.findItemRequestByIdAndRequestor(requestId,userId)==null){
+        if (repository.findItemRequestByIdAndRequestor(requestId, userId) == null) {
             return ItemRequestMapper.mapToItemRequestDto(repository.findItemRequestById(requestId));
         }
 
-        return ItemRequestMapper.mapToItemRequestDto(repository.findItemRequestByIdAndRequestor(requestId,userId));
+        return ItemRequestMapper.mapToItemRequestDto(repository.findItemRequestByIdAndRequestor(requestId, userId));
     }
-
 }

@@ -15,7 +15,6 @@ import ru.practicum.shareit.exceptions.ResourceNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.UserRepository;
-import ru.practicum.shareit.user.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,7 +28,6 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository repository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
-    private final UserService userService;
 
     @Override
     @Transactional
@@ -126,7 +124,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> findBookingsByStateAndOwnerId(long userId, String state,int from, int size) {
+    public List<Booking> findBookingsByStateAndOwnerId(long userId, String state, int from, int size) {
         if (!existsBookingByBookerIdOrItemOwner(userId, userId)) {
             throw new ResourceNotFoundException("No bookings found for user with ID: " + userId);
         }
@@ -139,10 +137,10 @@ public class BookingServiceImpl implements BookingService {
             switch (state) {
                 case "ALL":
                     log.info("Retrieving all bookings for owner with ID: {}", userId);
-                    return findBookingsByItemOwner(userId,from,size);
+                    return findBookingsByItemOwner(userId, from, size);
                 case "FUTURE":
                     log.info("Retrieving future bookings for owner with ID: {}", userId);
-                    return findBookingsByItemOwner(userId,from,size);
+                    return findBookingsByItemOwner(userId, from, size);
                 case "WAITING":
                     log.info("Retrieving waiting bookings for owner with ID: {}", userId);
                     return findBookingsByItemOwnerAndStatusWaiting(userId);
@@ -181,7 +179,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> findBookingsByStateAndBookerId(long userId, String state,int from,int size) {
+    public List<Booking> findBookingsByStateAndBookerId(long userId, String state, int from, int size) {
 
         if (from < 0 || size <= 0) {
             throw new ValidationException("Некорректные параметры пагинации");
@@ -190,10 +188,10 @@ public class BookingServiceImpl implements BookingService {
             switch (state) {
                 case "ALL":
                     log.info("Retrieving all bookings for booker with ID: {}", userId);
-                    return findBookingsByBookerId(userId,from,size);
+                    return findBookingsByBookerId(userId, from, size);
                 case "FUTURE":
                     log.info("Retrieving future bookings for booker with ID: {}", userId);
-                    return findBookingsByBookerId(userId,from,size);
+                    return findBookingsByBookerId(userId, from, size);
                 case "WAITING":
                     log.info("Retrieving waiting bookings for booker with ID: {}", userId);
                     return findBookingsByBookerIdAndStatusWaiting(userId);
@@ -224,7 +222,7 @@ public class BookingServiceImpl implements BookingService {
     public List<Booking> findBookingsByItemOwner(long userId, int from, int size) {
 
         Pageable pageable = PageRequest.of(from, size, Sort.by(Sort.Direction.DESC, "start"));
-        Page<Booking> page = repository.findBookingsByItemOwner(userId,pageable);
+        Page<Booking> page = repository.findBookingsByItemOwner(userId, pageable);
         List<Booking> bookings = page.getContent();
         if (bookings.isEmpty()) {
             throw new ResourceNotFoundException("Booking not found with Owner ID: " + userId);
@@ -232,18 +230,6 @@ public class BookingServiceImpl implements BookingService {
 
         return bookings;
     }
-//
-//    @Override
-//    public List<Booking> findBookingsByBookerId(long userId, int from, int size) {
-//        Pageable pageable = PageRequest.of(from, size, Sort.by(Sort.Direction.DESC, "start"));
-//        Page<Booking> page = repository.findBookingsByBookerId(userId, pageable);
-//        List<Booking> bookings = page.getContent();
-//        if (bookings.isEmpty()) {
-//            throw new ResourceNotFoundException("Booking not found with Booker ID: " + userId);
-//        }
-//
-//        return bookings;
-//    }
 
     @Override
     public List<Booking> findBookingsByBookerId(long userId, int from, int size) {
@@ -260,8 +246,6 @@ public class BookingServiceImpl implements BookingService {
 
         return bookings;
     }
-
-
 
     @Override
     public List<Booking> findBookingsByBookerIdOrItemOwner(long bookerId, long ownerId) {

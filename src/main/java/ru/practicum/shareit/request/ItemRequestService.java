@@ -1,6 +1,5 @@
 package ru.practicum.shareit.request;
 
-import org.springframework.web.bind.annotation.RequestParam;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 
 import java.util.List;
@@ -9,7 +8,7 @@ public interface ItemRequestService {
 
     ItemRequestDto saveRequest(long userId, ItemRequestDto itemRequestDto);
 
-    List<ItemRequestDto> getAllRequests(long userId,int from, int size);
+    List<ItemRequestDto> getAllRequests(long userId, int from, int size);
 
 
     List<ItemRequestDto> findItemRequestsById(long userId);

@@ -105,6 +105,7 @@ public class ItemServiceImpl implements ItemService {
         }
         return commentDtos;
     }
+
     @Override
     @Transactional
     public ItemDto saveItem(long userId, ItemDto itemDto) {
@@ -125,11 +126,9 @@ public class ItemServiceImpl implements ItemService {
             throw new ResourceNotFoundException("Отсутствует user под id:");
         }
 
-
-
         Item item = ItemMapper.mapToNewItem(itemDto);
         item.setOwner(userId);
-        if(itemDto.getRequestId()==0 ){
+        if (itemDto.getRequestId() == 0) {
             item.setRequestId(null);
         } else {
             item.setRequestId(itemRequestRepository.findItemRequestByRequestor(itemDto.getRequestId()));
@@ -139,14 +138,13 @@ public class ItemServiceImpl implements ItemService {
         dto.setNextBooking(findNextBookingByItemId(item.getId()));
         dto.setLastBooking(findLastBookingByItemId(item.getId()));
         dto.setComments(CommentMapper.mapToCommentDto(commentRepository.findAllByItemId(item.getId())));
-        if(itemDto.getRequestId()==0 ){
+        if (itemDto.getRequestId() == 0) {
             dto.setRequestId(0);
         } else {
             dto.setRequestId(itemDto.getRequestId());
         }
         return dto;
     }
-
 
     @Override
     public List<ItemDto> searchItems(String searchText) {
@@ -156,16 +154,6 @@ public class ItemServiceImpl implements ItemService {
         List<Item> items = itemRepository.findByDescriptionContainingIgnoreCaseAndAvailableIsTrueOrNameContainingIgnoreCaseAndAvailableIsTrue(searchText, searchText);
         return ItemMapper.mapToItemDto(items);
     }
-
-//    @Override
-//    public List<ItemDto> findItemsByRequestId(long requestId) {
-//        List<Item> items = itemRepository.findItemsByRequestId(requestId);
-//        if(items==null){
-//            re
-//        }
-//
-//        return ItemMapper.mapToItemDto(items);
-//    }
 
     @Override
     @Transactional
