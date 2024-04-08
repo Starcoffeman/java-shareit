@@ -49,23 +49,6 @@ public class UserServiceImplTest {
         assertEquals(2, userDtos.size());
     }
 
-//    @Test
-//    public void testSaveUser() {
-//        // Arrange
-//        UserDto userDto = new UserDto(1L, "John", "john@example.com");
-//        User user = UserMapper.mapToNewUser(userDto);
-//
-//        when(userRepository.save(any(User.class))).thenReturn(user);
-//
-//        // Act
-//        UserDto savedUserDto = userService.saveUser(userDto);
-//
-//        // Assert
-//        assertNotNull(savedUserDto);
-//        assertEquals(userDto.getName(), savedUserDto.getName());
-//        assertEquals(userDto.getEmail(), savedUserDto.getEmail());
-//    }
-
     @Test
     public void testGetUserNameById() {
         // Arrange
@@ -98,40 +81,6 @@ public class UserServiceImplTest {
         assertEquals(expectedName, userDto.getName());
         assertEquals(expectedEmail, userDto.getEmail());
     }
-//
-//    @Test
-//    public void testUpdate() {
-//        // Arrange
-//        long userId = 1L;
-//        String newName = "Jane";
-//        String newEmail = "jane@example.com";
-//        UserDto updatedUserDto = new UserDto(userId, newName, newEmail);
-//        User existingUser = new User(userId, "John", "john@example.com");
-//
-//        when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
-//        when(userRepository.existsByEmail(newEmail)).thenReturn(false);
-//        when(userRepository.updateUser(anyLong(), anyString(), anyString())).thenReturn(1);
-//
-//        // Act
-//        UserDto result = userService.update(userId, updatedUserDto);
-//
-//        // Assert
-//        assertNotNull(result);
-//        assertEquals(newName, result.getName());
-//        assertEquals(newEmail, result.getEmail());
-//    }
-//
-//    @Test
-//    public void testDeleteUserById() {
-//        // Arrange
-//        long userId = 1L;
-//
-//        // Act
-//        userService.deleteUserById(userId);
-//
-//        // Assert
-//        verify(userRepository, times(1)).deleteUserById(userId);
-//    }
 
     @Test
     public void testSaveUser_WithNullName() {
