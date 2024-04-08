@@ -32,7 +32,7 @@ public class ItemRepositoryTest {
     }
 
     @Test
-    public void testOneUser() {
+    public void testOneItem() {
         User user = new User(1L, "name", "email@qwe.ru");
         userRepository.save(user);
 
