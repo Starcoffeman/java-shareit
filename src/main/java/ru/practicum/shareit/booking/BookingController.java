@@ -48,8 +48,10 @@ public class BookingController {
     @GetMapping("/")
     @ResponseStatus(HttpStatus.OK)
     public List<Booking> findBookingsByBookerId(@RequestHeader(USER_ID) long userId,
-                                                @RequestParam(value = "from", required = false, defaultValue = "0") int from,
-                                                @RequestParam(value = "size", required = false, defaultValue = "20") int size) {
+                                                @RequestParam(value = "from", required = false,
+                                                        defaultValue = "0") int from,
+                                                @RequestParam(value = "size", required = false,
+                                                        defaultValue = "20") int size) {
         log.info("Received request to get bookings by booker with ID: {}", userId);
         return bookingService.findBookingsByBookerId(userId, from, size);
     }
@@ -57,9 +59,12 @@ public class BookingController {
     @GetMapping("/owner")
     @ResponseStatus(HttpStatus.OK)
     public List<Booking> findBookingsByStateAndOwnerId(@RequestHeader(USER_ID) long userId,
-                                                       @RequestParam(value = "state", required = false, defaultValue = "ALL") String state,
-                                                       @RequestParam(value = "from", required = false, defaultValue = "0") int from,
-                                                       @RequestParam(value = "size", required = false, defaultValue = "20") int size) {
+                                                       @RequestParam(value = "state", required = false,
+                                                               defaultValue = "ALL") String state,
+                                                       @RequestParam(value = "from", required = false,
+                                                               defaultValue = "0") int from,
+                                                       @RequestParam(value = "size", required = false,
+                                                               defaultValue = "20") int size) {
         log.info("Received request to get bookings by owner with ID: {} and state: {}", userId, state);
         return bookingService.findBookingsByStateAndOwnerId(userId, state, from, size);
     }
@@ -67,9 +72,12 @@ public class BookingController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<Booking> findBookingsByStateAndBookerId(@RequestHeader(USER_ID) long userId,
-                                                        @RequestParam(value = "state", required = false, defaultValue = "ALL") String state,
-                                                        @RequestParam(value = "from", required = false, defaultValue = "0") int from,
-                                                        @RequestParam(value = "size", required = false, defaultValue = "20") int size) {
+                                                        @RequestParam(value = "state", required = false,
+                                                                defaultValue = "ALL") String state,
+                                                        @RequestParam(value = "from", required = false,
+                                                                defaultValue = "0") int from,
+                                                        @RequestParam(value = "size", required = false,
+                                                                defaultValue = "20") int size) {
         log.info("Received request to get bookings by booker with ID: {} and state: {}", userId, state);
         return bookingService.findBookingsByStateAndBookerId(userId, state, from, size);
     }
