@@ -83,17 +83,19 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public ItemRequestDto getRequestById(long requestId, long userId) {
         if (userService.getUserById(userId) == null) {
-            throw new ResourceNotFoundException("ad");
+            throw new ResourceNotFoundException("User with ID " + userId + " not found.");
         }
 
-        if (repository.findItemRequestById(requestId) == null) {
-            throw new ResourceNotFoundException("asda");
+        ItemRequest itemRequest = repository.findItemRequestById(requestId);
+        if (itemRequest == null) {
+            throw new ResourceNotFoundException("Item request with ID " + requestId + " not found.");
         }
 
         if (repository.findItemRequestByIdAndRequestor(requestId, userId) == null) {
-            return ItemRequestMapper.mapToItemRequestDto(repository.findItemRequestById(requestId));
+            return ItemRequestMapper.mapToItemRequestDto(itemRequest);
         }
 
         return ItemRequestMapper.mapToItemRequestDto(repository.findItemRequestByIdAndRequestor(requestId, userId));
     }
+
 }

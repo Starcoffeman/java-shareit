@@ -11,6 +11,7 @@ import java.util.List;
 @Mapper
 @Component
 public class CommentMapper {
+
     public static CommentDto mapToCommentDto(Comment comment) {
         if (comment == null) {
             return null;

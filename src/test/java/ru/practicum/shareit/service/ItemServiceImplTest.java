@@ -51,8 +51,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.comment.CommentMapper;
 import ru.practicum.shareit.comment.CommentRepository;
 import ru.practicum.shareit.comment.CommentService;
+import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.model.Comment;
 import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.item.ItemRepository;
@@ -191,21 +193,44 @@ public class ItemServiceImplTest {
         assertEquals(1, itemDtos.size());
     }
 
-//    @Test
-//    public void testAddComment() {
-//        // Arrange
-//        long userId = 1L;
-//        long itemId = 1L;
-//        String text = "Comment text";
-//        when(bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndBefore(anyLong(), anyLong(), any(), any(LocalDateTime.class))).thenReturn(true);
-//        when(commentRepository.save(any(Comment.class))).thenAnswer(invocation -> invocation.getArgument(0));
-//
-//        // Act
-//        ItemDto itemDto = itemService.addComment(userId, itemId, text);
-//
-//        // Assert
-//        assertNotNull(itemDto);
-//        assertFalse(itemDto.getComments().isEmpty());
-//        assertEquals(text, itemDto.getComments().get(0).getText());
-//    }
+    @Test
+    public void testAddComment() {
+        // Arrange
+        long userId = 1L;
+        long itemId = 1L;
+        String text = "Comment text";
+
+        // Mock the user
+        UserDto user = new UserDto();
+        user.setId(userId);
+        user.setName("User Name");
+        when(userService.getUserById(userId)).thenReturn(user);
+
+        when(bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndBefore(anyLong(), anyLong(), any(), any(LocalDateTime.class))).thenReturn(true);
+        when(commentRepository.save(any(Comment.class))).thenAnswer(invocation -> {
+            Comment comment = invocation.getArgument(0);
+            comment.setId(1L); // Set an ID for the saved comment
+            return comment;
+        });
+
+        // Mock the CommentMapper
+        when(commentRepository.save(any(Comment.class))).thenReturn(new Comment());
+        when(commentService.getNameAuthorByCommentId(anyLong())).thenReturn("Author Name");
+
+        // Mock the item
+        Item item = new Item();
+        item.setId(itemId);
+        item.setComments(new ArrayList<>());
+        when(itemRepository.findById(itemId)).thenReturn(java.util.Optional.of(item));
+
+        // Act
+        CommentDto addedComment = itemService.addComment(userId, itemId, text);
+
+        // Assert
+        assertNotNull(addedComment);
+        assertEquals(text, addedComment.getText());
+        assertEquals("User Name", addedComment.getAuthorName()); // Assuming this is how you get the author's name
+        assertNotNull(addedComment.getCreated());
+    }
+
 }
