@@ -1,10 +1,10 @@
 package ru.practicum.shareit.service;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.practicum.shareit.exceptions.ConflictException;
 import ru.practicum.shareit.exceptions.ResourceNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.user.UserMapper;
@@ -15,149 +15,161 @@ import ru.practicum.shareit.user.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 public class UserServiceImplTest {
 
-    @Mock
-    private UserRepository userRepository;
-
-    @InjectMocks
+    @Autowired
     private UserServiceImpl userService;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @Test
-    public void testGetAllUsers() {
-        // Arrange
-        List<User> users = new ArrayList<>();
-        users.add(new User(1L, "John", "john@example.com"));
-        users.add(new User(2L, "Jane", "jane@example.com"));
+    public void testDeleteUserById() {
+        UserDto userDto = new UserDto();
+        userDto.setName("John Doe");
+        userDto.setEmail("john.doe@example.com");
+        Long id = userService.saveUser(userDto).getId();
 
-        when(userRepository.findAll()).thenReturn(users);
-
-        // Act
-        List<UserDto> userDtos = userService.getAllUsers();
-
-        // Assert
-        assertEquals(2, userDtos.size());
+        userService.deleteUserById(id);
+        assertEquals(0,userService.getAllUsers().size());
+        userRepository.deleteAll();
     }
 
     @Test
-    public void testGetUserNameById() {
-        // Arrange
-        long userId = 1L;
-        String expectedName = "John";
+    public void testCreateUser() {
+        UserDto userDto = new UserDto();
+        userDto.setName("John Doe");
+        userDto.setEmail("john.doe@example.com");
+        Long id = userService.saveUser(userDto).getId();
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(new User(userId, expectedName, "john@example.com")));
-
-        // Act
-        String actualName = userService.getUserNameById(userId);
-
-        // Assert
-        assertEquals(expectedName, actualName);
+        UserDto user = userService.getUserById(id);
+        assertEquals("John Doe", user.getName());
+        assertEquals("john.doe@example.com", user.getEmail());
+        userRepository.deleteAll();
     }
 
     @Test
-    public void testGetUserById() {
-        // Arrange
-        long userId = 1L;
-        String expectedName = "John";
-        String expectedEmail = "john@example.com";
-
-        when(userRepository.findById(userId)).thenReturn(Optional.of(new User(userId, expectedName, expectedEmail)));
-
-        // Act
-        UserDto userDto = userService.getUserById(userId);
-
-        // Assert
-        assertNotNull(userDto);
-        assertEquals(expectedName, userDto.getName());
-        assertEquals(expectedEmail, userDto.getEmail());
+    public void testUserNotFound() {
+        Long userId = 100L;
+        assertThrows(ResourceNotFoundException.class, () -> {
+            userService.getUserById(userId);
+        });
     }
 
     @Test
-    public void testSaveUser_WithNullName() {
-        // Arrange
-        UserDto userDto = new UserDto(1L, null, "john@example.com");
+    public void testOneUserWithNameNull() {
+        UserDto userDto = new UserDto();
+        userDto.setName(null);
+        userDto.setEmail("eamil@asdas.ru");
 
-        // Act + Assert
-        assertThrows(ValidationException.class, () -> userService.saveUser(userDto));
+        assertThrows(ValidationException.class, () -> {
+            userService.saveUser(userDto);
+        });
+
     }
 
     @Test
-    public void testSaveUser_WithBlankName() {
-        // Arrange
-        UserDto userDto = new UserDto(1L, "", "john@example.com");
+    public void testOneUserWithNameEmpty() {
+        UserDto userDto = new UserDto();
+        userDto.setName(" ");
+        userDto.setEmail("eamil@asdas.ru");
 
-        // Act + Assert
-        assertThrows(ValidationException.class, () -> userService.saveUser(userDto));
+        assertThrows(ValidationException.class, () -> {
+            userService.saveUser(userDto);
+        });
     }
 
     @Test
-    public void testSaveUser_WithNullEmail() {
-        // Arrange
-        UserDto userDto = new UserDto(1L, "John", null);
+    public void testOneUserWithEmailNull() {
+        UserDto userDto = new UserDto();
+        userDto.setName("name");
+        userDto.setEmail(null);
 
-        // Act + Assert
-        assertThrows(ValidationException.class, () -> userService.saveUser(userDto));
+        assertThrows(ValidationException.class, () -> {
+            userService.saveUser(userDto);
+        });
+
     }
 
     @Test
-    public void testSaveUser_WithBlankEmail() {
-        // Arrange
-        UserDto userDto = new UserDto(1L, "John", "");
+    public void testOneUserWithEmailEmpty() {
+        UserDto userDto = new UserDto();
+        userDto.setName("name");
+        userDto.setEmail(" ");
 
-        // Act + Assert
-        assertThrows(ValidationException.class, () -> userService.saveUser(userDto));
+        assertThrows(ValidationException.class, () -> {
+            userService.saveUser(userDto);
+        });
+
     }
 
     @Test
-    public void testUpdate_WithNullUser() {
-        // Arrange
-        long userId = 1L;
-        UserDto updatedUserDto = new UserDto(userId, "John", "john@example.com");
+    public void testAllUsers(){
+        UserDto userDto = new UserDto();
+        userDto.setName("John Doe");
+        userDto.setEmail("john.doe@example.com");
 
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
-        // Act + Assert
-        assertThrows(ResourceNotFoundException.class, () -> userService.update(userId, updatedUserDto));
+        List<UserDto> userDtos = new ArrayList<>();
+        userDtos.add(userDto);
+        userService.saveUser(userDto);
+        System.out.print(userService.getAllUsers());
+        assertEquals(userDtos.size(),userService.getAllUsers().size());
     }
+
+
 
     @Test
-    public void testGetUserNameById_WithNonExistingUser() {
-        // Arrange
-        long userId = 1L;
+    public void testDeleteUserByIdNotFound() {
+        UserDto userDto = new UserDto();
+        userDto.setName("John Doe");
+        userDto.setEmail("john.doe@example.com");
 
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
-        // Act + Assert
-        assertThrows(ResourceNotFoundException.class, () -> userService.getUserNameById(userId));
+        assertThrows(ValidationException.class, ()->userService.deleteUserById(0));
     }
+
 
     @Test
-    public void testGetUserById_WithNonExistingUser() {
-        // Arrange
-        long userId = 1L;
+    public void testUpdateUser() {
+        // Given
+        UserDto userDto = new UserDto();
+        userDto.setName("Philip");
+        userDto.setEmail("Philip.doe@example.com");
+        UserDto a= userService.saveUser(userDto);
+        UserDto user= userService.getUserById(a.getId());
 
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        // When
+        UserDto updatedUserDto = new UserDto();
+        updatedUserDto.setName("qwe Doqwee");
+        updatedUserDto.setEmail("qwe.doe@example.com");
+        userService.update(user.getId(), updatedUserDto);
 
-        // Act + Assert
-        assertThrows(ResourceNotFoundException.class, () -> userService.getUserById(userId));
+        // Then
+        UserDto retrievedUserDto = userService.getUserById(a.getId());
+        assertEquals("qwe Doqwee", retrievedUserDto.getName());
+        assertEquals("qwe.doe@example.com", retrievedUserDto.getEmail());
+        userRepository.deleteAll();
     }
+
 
     @Test
-    public void testDeleteUserById_WithNegativeUserId() {
-        // Arrange
-        long userId = -1L;
+    public void testUpdateUserWithIncorrectId() {
+        Long userId = 100L;
+        UserDto userDto = new UserDto();
+        userDto.setName("Philip");
+        userDto.setEmail("Philip.doe@example.com");
+        UserDto a= userService.saveUser(userDto);
+        UserDto user= userService.getUserById(a.getId());
 
-        // Act + Assert
-        assertThrows(ValidationException.class, () -> userService.deleteUserById(userId));
+        // When
+        UserDto updatedUserDto = new UserDto();
+        updatedUserDto.setName("qwe Doqwee");
+        updatedUserDto.setEmail("qwe.doe@example.com");
+        assertThrows(ResourceNotFoundException.class, ()-> userService.update(userId, updatedUserDto));
     }
+
 }

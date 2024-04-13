@@ -1,236 +1,362 @@
 package ru.practicum.shareit.service;
 
-//import org.junit.jupiter.api.Test;
-//import org.junit.jupiter.api.extension.ExtendWith;
-//import org.mockito.junit.jupiter.MockitoExtension;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.context.SpringBootTest;
-//import ru.practicum.shareit.item.ItemMapper;
-//import ru.practicum.shareit.item.ItemRepository;
-//import ru.practicum.shareit.item.ItemService;
-//import ru.practicum.shareit.item.ItemServiceImpl;
-//import ru.practicum.shareit.item.dto.ItemDto;
-//import ru.practicum.shareit.item.model.Item;
-//import ru.practicum.shareit.user.UserMapper;
-//import ru.practicum.shareit.user.UserService;
-//import ru.practicum.shareit.user.dto.UserDto;
-//import ru.practicum.shareit.user.model.User;
-//
-//import java.util.ArrayList;
-//
-//import static org.junit.jupiter.api.Assertions.assertEquals;
-//
-//@SpringBootTest
-//public class ItemServiceImplTest {
-//
-//    @Autowired
-//    private ItemService itemService;
-//
-//    @Autowired
-//    private UserService userService;
-//
-//    @Test
-//    public void testOneItem() {
-//        UserDto user = new UserDto(1L, "name", "qwe@mail.ru");
-//        userService.saveUser(user);
-//
-//        Item item = new Item(1L, "item", "какая-то вещь", true,
-//                1L, null, new ArrayList<>());
-//
-//        itemService.saveItem(1L, ItemMapper.mapToItemDto(item));
-//        ItemDto item1 = itemService.getItemById(1L,1L);
-//        assertEquals("item",item1.getName());
-//        assertEquals("какая-то вещь",item1.getDescription());
-//    }
-//
-//
-//}
-
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.practicum.shareit.booking.BookingRepository;
-import ru.practicum.shareit.comment.CommentMapper;
 import ru.practicum.shareit.comment.CommentRepository;
 import ru.practicum.shareit.comment.CommentService;
-import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.model.Comment;
+import ru.practicum.shareit.exceptions.ResourceNotFoundException;
+import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.ItemServiceImpl;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.request.ItemRequestRepository;
-import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.UserMapper;
+import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.UserServiceImpl;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 public class ItemServiceImplTest {
 
-    @Mock
-    private ItemRepository itemRepository;
-
-    @Mock
-    private UserService userService;
-
-    @Mock
-    private BookingRepository bookingRepository;
-
-    @Mock
-    private CommentRepository commentRepository;
-
-    @Mock
-    private CommentService commentService;
-
-    @Mock
-    private ItemRequestRepository itemRequestRepository;
-
-    @InjectMocks
+    @Autowired
     private ItemServiceImpl itemService;
 
+    @Autowired
+    private ItemRepository itemRepository;
+
+    @Autowired
+    private UserServiceImpl userService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private CommentService commentService;
+
+    @Autowired
+    private CommentRepository commentRepository;
+
+
     @Test
-    public void testFindItemsByOwner() {
-        // Arrange
-        long userId = 1L;
-        List<Item> items = new ArrayList<>();
-        Item item = new Item(1L, "item", "description", true, userId, null, new ArrayList<>());
-        items.add(item);
-        when(itemRepository.findItemsByOwner(userId)).thenReturn(items);
-
-        // Act
-        List<ItemDto> itemDtos = itemService.findItemsByOwner(userId);
-
-        // Assert
-        assertFalse(itemDtos.isEmpty());
-        assertEquals(1, itemDtos.size());
+    public void testCreateItem() {
+        User user = new User();
+        user.setName("name");
+        user.setEmail("email@qwe.ru");
+        Long id = userService.saveUser(UserMapper.mapToUserDto(user)).getId();
+        Item item = Item.builder()
+                .name("Test Item")
+                .description("Test Description")
+                .available(true)
+                .owner(id)
+                .requestId(null)
+                .comments(new ArrayList<>())
+                .build();
+        ItemDto saveItem = itemService.saveItem(id, ItemMapper.mapToItemDto(item));
+        ItemDto itemDto = itemService.getItemById(id, saveItem.getId());
+        assertEquals("Test Item", itemDto.getName());
+        assertEquals("Test Description", itemDto.getDescription());
+        assertTrue(itemDto.getAvailable());
+        itemRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
-    public void testUpdate() {
-        // Arrange
-        long userId = 1L;
-        long itemId = 1L;
-        ItemDto itemDto = new ItemDto(itemId, "updatedItem", "updatedDescription", true, null, null, 0 ,new ArrayList<>());
-        Item item = new Item(itemId, "item", "description", true, userId, null, new ArrayList<>());
-        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-        when(itemRepository.save(any(Item.class))).thenReturn(item);
+    public void testCreateItemWithWrongUserId() {
+        User user = new User();
+        user.setName("name");
+        user.setEmail("email@qwe.ru");
+        Long id = userService.saveUser(UserMapper.mapToUserDto(user)).getId();
+        Item item = Item.builder()
+                .name("Test Item")
+                .description("Test Description")
+                .available(true)
+                .owner(id)
+                .requestId(null)
+                .comments(new ArrayList<>())
+                .build();
 
-        // Act
-        ItemDto updatedItemDto = itemService.update(userId, itemId, itemDto);
+        assertThrows(ValidationException.class, () -> itemService.saveItem(0, ItemMapper.mapToItemDto(item)));
 
-        // Assert
-        assertNotNull(updatedItemDto);
-        assertEquals("updatedItem", updatedItemDto.getName());
-        assertEquals("updatedDescription", updatedItemDto.getDescription());
+        itemRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
-    public void testGetItemById() {
-        // Arrange
-        long userId = 1L;
-        long itemId = 1L;
-        Item item = new Item(itemId, "item", "description", true, userId, null, new ArrayList<>());
-        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+    public void testCreateItemWithWrongName() {
+        User user = new User();
+        user.setName("name");
+        user.setEmail("email@qwe.ru");
+        Long id = userService.saveUser(UserMapper.mapToUserDto(user)).getId();
+        Item item = Item.builder()
+                .name(null)
+                .description("Test Description")
+                .available(true)
+                .owner(id)
+                .requestId(null)
+                .comments(new ArrayList<>())
+                .build();
 
-        // Act
-        ItemDto itemDto = itemService.getItemById(userId, itemId);
-
-        // Assert
-        assertNotNull(itemDto);
-        assertEquals(itemId, itemDto.getId());
-        assertEquals("item", itemDto.getName());
-        assertEquals("description", itemDto.getDescription());
+        assertThrows(ValidationException.class, () -> itemService.saveItem(id, ItemMapper.mapToItemDto(item)));
+        itemRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
-    public void testSaveItem() {
-        // Arrange
-        long userId = 1L;
-        ItemDto itemDto = new ItemDto(1L, "item", "description", true, null, null, 0,new ArrayList<>());
-        when(userService.getUserById(userId)).thenReturn(new UserDto(userId, "name", "email"));
-        when(itemRequestRepository.findItemRequestByRequestor(anyLong())).thenReturn(null);
-        when(itemRepository.save(any(Item.class))).thenAnswer(invocation -> {
-            Item savedItem = invocation.getArgument(0);
-            savedItem.setId(1L); // Simulate ID generation by the repository
-            return savedItem;
-        });
+    public void testCreateItemWithWrongDescription() {
+        User user = new User();
+        user.setName("name");
+        user.setEmail("email@qwe.ru");
+        Long id = userService.saveUser(UserMapper.mapToUserDto(user)).getId();
+        Item item = Item.builder()
+                .name("Test Item")
+                .description(null)
+                .available(true)
+                .owner(id)
+                .requestId(null)
+                .comments(new ArrayList<>())
+                .build();
 
-        // Act
-        ItemDto savedItemDto = itemService.saveItem(userId, itemDto);
-
-        // Assert
-        assertNotNull(savedItemDto);
-        assertEquals(1L, savedItemDto.getId());
-        assertEquals("item", savedItemDto.getName());
-        assertEquals("description", savedItemDto.getDescription());
+        assertThrows(ValidationException.class, () -> itemService.saveItem(id, ItemMapper.mapToItemDto(item)));
+        itemRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
-    public void testSearchItems() {
-        // Arrange
-        String searchText = "keyword";
-        List<Item> items = new ArrayList<>();
-        Item item = new Item(1L, "item", "description", true, 1L, null, new ArrayList<>());
-        items.add(item);
-        when(itemRepository.findByDescriptionContainingIgnoreCaseAndAvailableIsTrueOrNameContainingIgnoreCaseAndAvailableIsTrue(searchText, searchText)).thenReturn(items);
-
-        // Act
-        List<ItemDto> itemDtos = itemService.searchItems(searchText);
-
-        // Assert
-        assertFalse(itemDtos.isEmpty());
-        assertEquals(1, itemDtos.size());
+    public void testCreateItemNotFound() {
+        User user = new User();
+        user.setName("name");
+        user.setEmail("email@qwe.ru");
+        Long id = userService.saveUser(UserMapper.mapToUserDto(user)).getId();
+        Item item = Item.builder()
+                .name("Test Item")
+                .description("Test Description")
+                .available(true)
+                .owner(id)
+                .requestId(null)
+                .comments(new ArrayList<>())
+                .build();
+        itemService.saveItem(id, ItemMapper.mapToItemDto(item));
+        assertThrows(ResourceNotFoundException.class, () ->
+                itemService.getItemById(id, 100));
+        itemRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
-    public void testAddComment() {
-        // Arrange
-        long userId = 1L;
-        long itemId = 1L;
-        String text = "Comment text";
+    public void testCreateItemUserIdNotFound() {
+        User user = new User();
+        user.setName("name");
+        user.setEmail("email@qwe.ru");
+        Long id = userService.saveUser(UserMapper.mapToUserDto(user)).getId();
 
-        // Mock the user
-        UserDto user = new UserDto();
-        user.setId(userId);
-        user.setName("User Name");
-        when(userService.getUserById(userId)).thenReturn(user);
-
-        when(bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndBefore(anyLong(), anyLong(), any(), any(LocalDateTime.class))).thenReturn(true);
-        when(commentRepository.save(any(Comment.class))).thenAnswer(invocation -> {
-            Comment comment = invocation.getArgument(0);
-            comment.setId(1L); // Set an ID for the saved comment
-            return comment;
-        });
-
-        // Mock the CommentMapper
-        when(commentRepository.save(any(Comment.class))).thenReturn(new Comment());
-        when(commentService.getNameAuthorByCommentId(anyLong())).thenReturn("Author Name");
-
-        // Mock the item
-        Item item = new Item();
-        item.setId(itemId);
-        item.setComments(new ArrayList<>());
-        when(itemRepository.findById(itemId)).thenReturn(java.util.Optional.of(item));
-
-        // Act
-        CommentDto addedComment = itemService.addComment(userId, itemId, text);
-
-        // Assert
-        assertNotNull(addedComment);
-        assertEquals(text, addedComment.getText());
-        assertEquals("User Name", addedComment.getAuthorName()); // Assuming this is how you get the author's name
-        assertNotNull(addedComment.getCreated());
+        Item item = Item.builder()
+                .name("Test Item")
+                .description("Test Description")
+                .available(true)
+                .owner(id)
+                .requestId(null)
+                .comments(new ArrayList<>())
+                .build();
+        assertThrows(ResourceNotFoundException.class, () -> itemService.saveItem(100L, ItemMapper.mapToItemDto(item)));
+        itemRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
+    @Test
+    public void testFindItem() {
+        User user = new User();
+        user.setName("name");
+        user.setEmail("email@qwe.ru");
+        Long id = userService.saveUser(UserMapper.mapToUserDto(user)).getId();
+        Item item = Item.builder()
+                .name("Test Item")
+                .description("Test Description")
+                .available(true)
+                .owner(id)
+                .requestId(null)
+                .comments(new ArrayList<>())
+                .build();
+
+        ItemDto saveItem = itemService.saveItem(id, ItemMapper.mapToItemDto(item));
+        ItemDto getItem = itemService.getItemById(10L, saveItem.getId());
+        assertEquals(null, getItem.getLastBooking());
+        assertEquals(null, getItem.getNextBooking());
+        itemRepository.deleteAll();
+        userRepository.deleteAll();
+    }
+
+    @Test
+    public void testSearchItemsEmpty(){
+        User user = new User();
+        user.setName("name");
+        user.setEmail("email@qwe.ru");
+        Long id = userService.saveUser(UserMapper.mapToUserDto(user)).getId();
+        Item item = Item.builder()
+                .name("Test Item")
+                .description("Test Description")
+                .available(true)
+                .owner(id)
+                .requestId(null)
+                .comments(new ArrayList<>())
+                .build();
+
+        itemService.saveItem(id,ItemMapper.mapToItemDto(item));
+        assertEquals(new ArrayList<>(),itemService.searchItems(" "));
+        itemRepository.deleteAll();
+        userRepository.deleteAll();
+    }
+
+    @Test
+    public void testSearchItems(){
+        User user = new User();
+        user.setName("name");
+        user.setEmail("email@qwe.ru");
+        Long id = userService.saveUser(UserMapper.mapToUserDto(user)).getId();
+        Item item = Item.builder()
+                .name("Test Item")
+                .description("Test Description")
+                .available(true)
+                .owner(id)
+                .requestId(null)
+                .comments(new ArrayList<>())
+                .build();
+
+        itemService.saveItem(id,ItemMapper.mapToItemDto(item));
+        assertEquals(1,itemService.searchItems("Description").size());
+        itemRepository.deleteAll();
+        userRepository.deleteAll();
+    }
+
+    @Test
+    public void testFindItemsByOwner(){
+        User user = new User();
+        user.setName("name");
+        user.setEmail("email@qwe.ru");
+        Long id = userService.saveUser(UserMapper.mapToUserDto(user)).getId();
+        Item item = Item.builder()
+                .name("Test Item")
+                .description("Test Description")
+                .available(true)
+                .owner(id)
+                .requestId(null)
+                .comments(new ArrayList<>())
+                .build();
+
+        itemService.saveItem(id,ItemMapper.mapToItemDto(item));
+        assertEquals(1,itemService.findItemsByOwner(id).size());
+        itemRepository.deleteAll();
+        userRepository.deleteAll();
+    }
+
+    @Test
+    public void testUpdateItemWrongItemId(){
+        User user = new User();
+        user.setName("name");
+        user.setEmail("email@qwe.ru");
+        Long id = userService.saveUser(UserMapper.mapToUserDto(user)).getId();
+        Item item = Item.builder()
+                .name("Test Item")
+                .description("Test Description")
+                .available(true)
+                .owner(id)
+                .requestId(null)
+                .comments(new ArrayList<>())
+                .build();
+        ItemDto itemDto = itemService.saveItem(id,ItemMapper.mapToItemDto(item));
+
+        ItemDto updateItem = ItemDto.builder()
+                .name("UPDATE Test Item")
+                .description("UPDATE Test Description")
+                .available(true)
+                .nextBooking(null)
+                .lastBooking(null)
+                .requestId(id)
+                .comments(new ArrayList<>())
+                .build();
+
+        assertThrows(ResourceNotFoundException.class,()->itemService.update(id,100L,updateItem));
+        itemRepository.deleteAll();
+        userRepository.deleteAll();
+    }
+
+    @Test
+    public void testUpdateItemWrongUserId(){
+        User user = new User();
+        user.setName("name");
+        user.setEmail("email@qwe.ru");
+        Long id = userService.saveUser(UserMapper.mapToUserDto(user)).getId();
+        Item item = Item.builder()
+                .name("Test Item")
+                .description("Test Description")
+                .available(true)
+                .owner(id)
+                .requestId(null)
+                .comments(new ArrayList<>())
+                .build();
+        ItemDto itemDto = itemService.saveItem(id,ItemMapper.mapToItemDto(item));
+
+        ItemDto updateItem = ItemDto.builder()
+                .name("UPDATE Test Item")
+                .description("UPDATE Test Description")
+                .available(true)
+                .nextBooking(null)
+                .lastBooking(null)
+                .requestId(id)
+                .comments(new ArrayList<>())
+                .build();
+
+        assertThrows(ResourceNotFoundException.class,()->itemService.update(100L,itemDto.getId(),updateItem));
+        itemRepository.deleteAll();
+        userRepository.deleteAll();
+    }
+
+    @Test
+    public void testUpdateItem(){
+        User user = new User();
+        user.setName("name");
+        user.setEmail("email@qwe.ru");
+        Long id = userService.saveUser(UserMapper.mapToUserDto(user)).getId();
+        Item item = Item.builder()
+                .name("Test Item")
+                .description("Test Description")
+                .available(true)
+                .owner(id)
+                .requestId(null)
+                .comments(new ArrayList<>())
+                .build();
+        ItemDto itemDto = itemService.saveItem(id,ItemMapper.mapToItemDto(item));
+
+        ItemDto updateItem = ItemDto.builder()
+                .name("UPDATE Test Item")
+                .description("UPDATE Test Description")
+                .available(false)
+                .nextBooking(null)
+                .lastBooking(null)
+                .requestId(id)
+                .comments(new ArrayList<>())
+                .build();
+
+
+        itemService.update(id,itemDto.getId(),updateItem);
+        assertEquals("UPDATE Test Item",updateItem.getName());
+        assertEquals("UPDATE Test Description",updateItem.getDescription());
+        assertFalse(updateItem.getAvailable());
+
+        itemRepository.deleteAll();
+        userRepository.deleteAll();
+    }
 }
