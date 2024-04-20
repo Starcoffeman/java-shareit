@@ -267,8 +267,6 @@ class ItemServiceImplTest {
         assertTrue(item.getComments().size() > 0);
     }
 
-
-
     @Test
     void testAddCommentEmptyText() {
         // Подготовка тестовых данных
@@ -295,11 +293,6 @@ class ItemServiceImplTest {
         // Проверка на исключение, если у пользователя есть будущее бронирование
         assertThrows(ValidationException.class, () -> itemService.addComment(userId, itemId, commentText));
     }
-
-
-
-
-
 
     @Test
     void saveItem_nullDescription_throwsValidationException() {
