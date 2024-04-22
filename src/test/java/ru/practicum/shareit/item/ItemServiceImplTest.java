@@ -29,9 +29,11 @@ import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -41,9 +43,6 @@ class ItemServiceImplTest {
 
     @Mock
     private ItemRepository itemRepository;
-
-    @Mock
-    private UserRepository userRepository;
 
     @Mock
     private UserService userService;
@@ -56,9 +55,6 @@ class ItemServiceImplTest {
 
     @Mock
     private CommentService commentService;
-
-    @Mock
-    private ItemRequestRepository itemRequestRepository;
 
     @InjectMocks
     private ItemServiceImpl itemService;
@@ -143,7 +139,6 @@ class ItemServiceImplTest {
     }
     @Test
     void testGetNameAuthor() {
-        // Создаем мок объект Item
         Item item = new Item();
         item.setId(1L);
 
@@ -240,36 +235,6 @@ class ItemServiceImplTest {
         assertEquals("This is another test item 2", result.get(1).getDescription());
     }
 
-//    @Test
-//    void testAddComment() {
-//        // Prepare test data
-//        long userId = 1L;
-//        long itemId = 1L;
-//        String commentText = "Test comment";
-//        LocalDateTime currentTime = LocalDateTime.now();
-//
-//        // Create a mock item
-//        Item item = new Item();
-//        item.setId(itemId);
-//
-//        // Stub the methods
-//        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-//        when(bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndBefore(
-//                eq(itemId), eq(userId), eq(BookingStatus.APPROVED), eq(currentTime)))
-//                .thenReturn(true);
-//        when(userService.getUserById(userId)).thenReturn(new UserDto(1L, "Test User", "test@example.com"));
-//
-//        // Call the method under test
-//        CommentDto result = itemService.addComment(userId, itemId, commentText);
-//
-//        // Perform assertions
-//        assertNotNull(result);
-//        assertEquals(commentText, result.getText());
-//        assertEquals("Test User", result.getAuthorName());
-//        verify(commentRepository, times(1)).save(any(Comment.class));
-//        assertTrue(item.getComments().size() > 0);
-//    }
-
     @Test
     void testAddCommentEmptyText() {
         // Подготовка тестовых данных
@@ -295,6 +260,38 @@ class ItemServiceImplTest {
 
         // Проверка на исключение, если у пользователя есть будущее бронирование
         assertThrows(ValidationException.class, () -> itemService.addComment(userId, itemId, commentText));
+    }
+
+    @Test
+    void testAddCommentTestEmpty() {
+        // Подготовка тестовых данных
+        long userId = 1L;
+        long itemId = 1L;
+        String commentText = " ";
+
+        // Мокирование поведения bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndBefore
+        when(bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndBefore(
+                eq(itemId), eq(userId), eq(BookingStatus.APPROVED), any(LocalDateTime.class)))
+                .thenReturn(true);
+
+        // Проверка на исключение, если у пользователя есть будущее бронирование
+        assertThrows(ValidationException.class, () -> itemService.addComment(userId, itemId, commentText));
+    }
+
+    @Test
+    void testAddCommentItemNotFound() {
+        // Подготовка тестовых данных
+        long userId = 1L;
+        long itemId = 2L;
+        String commentText = "Test comment";
+
+        // Мокирование поведения bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndBefore
+        when(bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndBefore(
+                eq(itemId), eq(userId), eq(BookingStatus.APPROVED), any(LocalDateTime.class)))
+                .thenReturn(true);
+
+        // Проверка на исключение, если у пользователя есть будущее бронирование
+        assertThrows(ResourceNotFoundException.class, () -> itemService.addComment(userId, itemId, commentText));
     }
 
     @Test
@@ -347,7 +344,6 @@ class ItemServiceImplTest {
         assertEquals("Item 2", result.get(1).getName());
         // (Добавьте другие проверки по необходимости)
     }
-
 
     @Test
     void update() {
@@ -430,44 +426,36 @@ class ItemServiceImplTest {
         verify(userService, times(1)).getUserById(userId);
     }
 
-//    @Test
-//    void getItemByIdNonOwner() {
-//        long userId = 2L;
-//        long itemId = 1L;
-//
-//        // Создание мока элемента
-//        Item item = new Item();
-//        item.setId(itemId);
-//        item.setOwner(1L); // Пользователь, отличный от текущего пользователя
-//
-//        // Создание мока списка комментариев
-//        List<Comment> comments = new ArrayList<>();
-//        Comment comment1 = new Comment();
-//        comment1.setId(1L);
-//        comment1.setText("Comment 1");
-//        Comment comment2 = new Comment();
-//        comment2.setId(2L);
-//        comment2.setText("Comment 2");
-//        comments.add(comment1);
-//        comments.add(comment2);
-//
-//        // Установка моков их репозиториев
-//        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-//        when(commentRepository.findAllByItemId(itemId)).thenReturn(comments);
-//        when(commentService.getNameAuthorByCommentId(1L)).thenReturn("Author 1");
-//        when(commentService.getNameAuthorByCommentId(2L)).thenReturn("Author 2");
-//
-//        // Вызов тестируемого метода
-//        ItemDto itemDto = itemService.getItemById(userId, itemId);
-//
-//        // Проверка, что комментарии установлены, но nextBooking и lastBooking - null
-//        assertEquals(null, itemDto.getNextBooking());
-//        assertEquals(null, itemDto.getLastBooking());
-//        assertEquals("Author 1", itemDto.getComments().get(0).getAuthorName());
-//        assertEquals("Comment 1", itemDto.getComments().get(0).getText());
-//        assertEquals("Author 2", itemDto.getComments().get(1).getAuthorName());
-//        assertEquals("Comment 2", itemDto.getComments().get(1).getText());
-//    }
+    @Test
+    void addComment_ReturnsCommentDto_WhenValid() {
+        // Подготовка тестовых данных
+        long userId = 1L;
+        long itemId = 1L;
+        String commentText = "Test comment";
+
+        // Создание моков объектов
+        UserDto userDto = new UserDto();
+        userDto.setId(userId);
+        userDto.setName("Test User");
+        userDto.setEmail("test@example.com");
+
+        Item item = new Item();
+        item.setId(itemId);
+
+        when(bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndBefore(eq(itemId), eq(userId),
+                eq(BookingStatus.APPROVED), any(LocalDateTime.class))).thenReturn(true);
+        when(userService.getUserById(userId)).thenReturn(userDto);
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+
+        // Вызов метода
+        CommentDto result = itemService.addComment(userId, itemId, commentText);
+
+        // Проверка результатов
+        assertNotNull(result);
+        assertEquals(commentText, result.getText());
+        assertEquals("Test User", result.getAuthorName());
+        verify(commentRepository, times(1)).save(any(Comment.class));
+    }
 
     @Test
     void getItemByIdItemNotFound() {
@@ -485,21 +473,5 @@ class ItemServiceImplTest {
 
         // Проверяем, что метод findById вызывался с правильным itemId
         verify(itemRepository, times(1)).findById(itemId);
-    }
-
-
-
-
-
-    @Test
-    void getItemById() {
-    }
-
-    @Test
-    void searchItems() {
-    }
-
-    @Test
-    void addComment() {
     }
 }
