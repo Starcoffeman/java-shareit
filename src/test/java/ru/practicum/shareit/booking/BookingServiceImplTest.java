@@ -779,6 +779,28 @@ class BookingServiceImplTest {
         assertEquals(expectedBookings, result);
     }
 
+    @Test
+    void findBookingsByStateAndBookerId_ValidFrom() {
+        long userId = 1L;
+        int from = -1;
+        int size = 10;
+
+        assertThrows(ValidationException.class, () -> {
+            bookingService.findBookingsByStateAndBookerId(userId, "ALL", from, size);
+        });
+    }
+
+    @Test
+    void findBookingsByStateAndBookerId_ValidSize() {
+        long userId = 1L;
+        int from = 0;
+        int size = -1;
+
+        assertThrows(ValidationException.class, () -> {
+            bookingService.findBookingsByStateAndBookerId(userId, "ALL", from, size);
+        });
+    }
+
 
 
 }
