@@ -16,6 +16,4 @@ public interface UserService {
 
     void deleteUserById(long userId);
 
-    String getUserNameById(Long userId);
-
 }

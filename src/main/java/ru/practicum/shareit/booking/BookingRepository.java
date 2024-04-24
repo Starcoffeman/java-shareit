@@ -40,6 +40,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findBookingsByBookerIdAndEndBeforeOrderByEndDesc(long userId, LocalDateTime now);
 
     Page<Booking> findBookingsByBookerId(long userId, Pageable pageable);
+
 }
 
 
