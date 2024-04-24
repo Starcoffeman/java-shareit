@@ -31,13 +31,14 @@ class CommentRepositoryTest {
 
     @Test
     void findAllByItemId() {
-
+        // Создаем пользователя
         User owner = new User();
         owner.setName("Owner Name");
         owner.setEmail("john.doe@example.com");
 
         long ownerId = userRepository.save(owner).getId();
 
+        // Создаем элемент
         Item item = new Item();
         item.setName("Test Item");
         item.setDescription("Test Description");
@@ -46,26 +47,25 @@ class CommentRepositoryTest {
         item.setRequestId(null);
         item.setComments(new ArrayList<>());
 
-        // Выполняем метод, который тестируем
+        // Сохраняем элемент в базе данных
         Item savedItem = itemRepository.save(item);
 
-        Long itemId = 1L;
-        Long validAuthorId = 1L;
-        // Создание комментария с корректным ID автора
+        // Создаем комментарий с ссылкой на созданный элемент
         Comment comment = new Comment();
         comment.setText("Test comment");
-        comment.setItemId(itemId);
-        comment.setAuthorId(validAuthorId);
+        comment.setItemId(savedItem.getId());
+        comment.setAuthorId(ownerId);
         comment.setCreatedAt(LocalDateTime.now());
 
-        // Попытка сохранения комментария
+        // Сохраняем комментарий в базе данных
         Comment savedComment = commentRepository.save(comment);
 
-        // Проверка, что комментарий сохранен успешно
+        // Проверяем успешность сохранения комментария
         assertNotNull(savedComment.getId());
         assertEquals(comment.getText(), savedComment.getText());
         assertEquals(comment.getItemId(), savedComment.getItemId());
         assertEquals(comment.getAuthorId(), savedComment.getAuthorId());
     }
+
 
 }
