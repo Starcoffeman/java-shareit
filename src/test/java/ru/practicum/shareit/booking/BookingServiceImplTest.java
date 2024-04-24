@@ -299,8 +299,9 @@ class BookingServiceImplTest {
         long itemId = 1L;
         BookingDto bookingDto = new BookingDto();
         bookingDto.setItemId(itemId);
-        bookingDto.setStart(LocalDateTime.now().plusHours(1));
-        bookingDto.setEnd(LocalDateTime.now().plusHours(1));
+        LocalDateTime sameTime = LocalDateTime.now().plusHours(1);
+        bookingDto.setStart(sameTime);
+        bookingDto.setEnd(sameTime);
 
         Item item = new Item();
         item.setAvailable(true);
