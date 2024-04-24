@@ -800,7 +800,4 @@ class BookingServiceImplTest {
             bookingService.findBookingsByStateAndBookerId(userId, "ALL", from, size);
         });
     }
-
-
-
 }
