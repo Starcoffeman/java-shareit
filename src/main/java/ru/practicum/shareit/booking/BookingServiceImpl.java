@@ -14,6 +14,7 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.exceptions.ResourceNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
@@ -162,19 +163,19 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    private List<Booking> findPastBookingsByOwnerId(long userId) {
+    public List<Booking> findPastBookingsByOwnerId(long userId) {
         return repository.findBookingsByItemOwnerAndEndBeforeOrderByEndDesc(userId, LocalDateTime.now());
     }
 
-    private List<Booking> findPastBookingsByBookerId(long userId) {
+    public List<Booking> findPastBookingsByBookerId(long userId) {
         return repository.findBookingsByBookerIdAndEndBeforeOrderByEndDesc(userId, LocalDateTime.now());
     }
 
-    private List<Booking> findCurrentBookingsByOwnerId(long userId) {
+    public List<Booking> findCurrentBookingsByOwnerId(long userId) {
         return repository.findBookingsByItemOwnerAndStartBeforeAndEndAfter(userId, LocalDateTime.now(), LocalDateTime.now());
     }
 
-    private List<Booking> findCurrentBookingsByBookerId(long userId) {
+    public List<Booking> findCurrentBookingsByBookerId(long userId) {
         return repository.findBookingsByBookerIdAndStartBeforeAndEndAfter(userId, LocalDateTime.now(), LocalDateTime.now());
     }
 
