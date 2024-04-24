@@ -61,6 +61,7 @@ class CommentRepositoryTest {
         // Попытка сохранения комментария
         Comment savedComment = commentRepository.save(comment);
 
+
         // Проверка, что комментарий сохранен успешно
         assertNotNull(savedComment.getId());
         assertEquals(comment.getText(), savedComment.getText());
