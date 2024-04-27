@@ -34,7 +34,7 @@ public class ItemRequestMapper {
     public static List<ItemRequestDto> mapToItemDto(List<ItemRequest> itemRequests) {
         List<ItemRequestDto> result = new ArrayList<>();
 
-        for (ItemRequest itemRequest : itemRequests) {
+        for (ru.practicum.shareit.request.model.ItemRequest itemRequest : itemRequests) {
             result.add(mapToItemRequestDto(itemRequest));
         }
 

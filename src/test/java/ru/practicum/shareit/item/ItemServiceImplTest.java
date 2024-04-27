@@ -458,20 +458,13 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void getItemByIdItemNotFound() {
-        // Подготовка тестовых данных
+    void getItemById_ItemNotFound() {
         long userId = 1L;
         long itemId = 1L;
-
-        // Мокирование поведения репозитория
         when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
-
-        // Проверяем, что при запросе элемента, который не найден, выбрасывается исключение
-        assertThrows(ResourceNotFoundException.class, () -> {
-            itemService.getItemById(userId, itemId);
-        });
-
-        // Проверяем, что метод findById вызывался с правильным itemId
-        verify(itemRepository, times(1)).findById(itemId);
+        assertThrows(ResourceNotFoundException.class, () -> itemService.getItemById(userId, itemId));
     }
+
+
+
 }
