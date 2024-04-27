@@ -55,7 +55,7 @@ class CommentRepositoryTest {
         Comment comment = new Comment();
         comment.setText("Test comment");
         comment.setItemId(itemId);
-        comment.setAuthorId(validAuthorId);
+        comment.setAuthorId(ownerId);
         comment.setCreatedAt(LocalDateTime.now());
 
         // Попытка сохранения комментария
