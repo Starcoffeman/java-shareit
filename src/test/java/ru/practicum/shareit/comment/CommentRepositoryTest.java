@@ -31,42 +31,34 @@ class CommentRepositoryTest {
 
     @Test
     void findAllByItemId() {
-
+        // Create a user
         User owner = new User();
         owner.setName("Owner Name");
         owner.setEmail("john.doe@example.com");
+        userRepository.save(owner);
 
-        long ownerId = userRepository.save(owner).getId();
-
+        // Create an item
         Item item = new Item();
         item.setName("Test Item");
         item.setDescription("Test Description");
         item.setAvailable(true);
-        item.setOwner(ownerId);
-        item.setRequestId(null);
-        item.setComments(new ArrayList<>());
-
-        // Выполняем метод, который тестируем
+        item.setOwner(owner.getId());
         Item savedItem = itemRepository.save(item);
 
-        Long itemId = 1L;
-        Long validAuthorId = 1L;
-        // Создание комментария с корректным ID автора
+        // Create a comment
         Comment comment = new Comment();
         comment.setText("Test comment");
-        comment.setItemId(itemId);
-        comment.setAuthorId(ownerId);
+        comment.setItemId(savedItem.getId()); // Use the ID of the saved item
+        comment.setAuthorId(owner.getId()); // Use the ID of the saved user
         comment.setCreatedAt(LocalDateTime.now());
 
-        // Попытка сохранения комментария
+        // Attempt to save the comment
         Comment savedComment = commentRepository.save(comment);
 
-        // Проверка, что комментарий сохранен успешно
+        // Assert that the comment was saved successfully
         assertNotNull(savedComment.getId());
         assertEquals(comment.getText(), savedComment.getText());
         assertEquals(comment.getItemId(), savedComment.getItemId());
         assertEquals(comment.getAuthorId(), savedComment.getAuthorId());
     }
-
-
 }
