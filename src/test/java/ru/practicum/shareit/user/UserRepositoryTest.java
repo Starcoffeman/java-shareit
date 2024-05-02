@@ -5,7 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import ru.practicum.shareit.user.model.User;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
 class UserRepositoryTest {
@@ -28,9 +29,9 @@ class UserRepositoryTest {
         user.setName("name");
         user.setEmail("name@email.ru");
         long id = repository.save(user).getId();
-        assertEquals(1,repository.findAll().size());
-        assertEquals("name",repository.getReferenceById(id).getName());
-        assertEquals("name@email.ru",repository.getReferenceById(id).getEmail());
+        assertEquals(1, repository.findAll().size());
+        assertEquals("name", repository.getReferenceById(id).getName());
+        assertEquals("name@email.ru", repository.getReferenceById(id).getEmail());
     }
 
     @Test

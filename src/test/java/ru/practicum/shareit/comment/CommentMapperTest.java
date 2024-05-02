@@ -13,59 +13,38 @@ import static org.junit.jupiter.api.Assertions.*;
 class CommentMapperTest {
 
     @Test
-    void mapToCommentDto_SingleComment() {
-        // Arrange
-        Comment comment = new Comment();
-        comment.setId(1L);
-        comment.setText("Test comment");
-        comment.setCreatedAt(LocalDateTime.now());
+    void mapToCommentDto_ShouldMapFieldsCorrectly() {
+        Comment comment = new Comment(1L, "Great item!", 10L, 20L, LocalDateTime.now());
+        CommentMapper mapper = new CommentMapper();
+        CommentDto result = mapper.mapToCommentDto(comment);
 
-        // Act
-        CommentDto commentDto = CommentMapper.mapToCommentDto(comment);
-
-        // Assert
-        assertEquals(comment.getId(), commentDto.getId());
-        assertEquals(comment.getText(), commentDto.getText());
-        assertEquals(comment.getCreatedAt(), commentDto.getCreated());
+        assertNotNull(result);
+        assertEquals(comment.getId(), result.getId());
+        assertEquals(comment.getText(), result.getText());
+        assertEquals(comment.getCreatedAt(), result.getCreated());
     }
 
     @Test
-    void mapToCommentDto_NullComment() {
-        // Arrange
+    void mapToCommentDto_ShouldHandleNull() {
         Comment comment = null;
+        CommentMapper mapper = new CommentMapper();
+        CommentDto result = mapper.mapToCommentDto(comment);
 
-        // Act
-        CommentDto commentDto = CommentMapper.mapToCommentDto(comment);
-
-        // Assert
-        assertNull(commentDto);
+        assertNull(result);
     }
 
     @Test
-    void testMapToCommentDto_MultipleComments() {
-        // Arrange
-        Comment comment1 = new Comment();
-        comment1.setId(1L);
-        comment1.setText("Test comment 1");
-        comment1.setCreatedAt(LocalDateTime.now());
+    void mapToCommentDtoList_ShouldCorrectlyMapCommentsToCommentDtos() {
+        CommentMapper mapper = new CommentMapper();
+        List<Comment> comments = Arrays.asList(
+                new Comment(1L, "Great item!", 10L, 20L, LocalDateTime.now()),
+                new Comment(2L, "Needs improvement", 11L, 21L, LocalDateTime.now().minusDays(1))
+        );
 
-        Comment comment2 = new Comment();
-        comment2.setId(2L);
-        comment2.setText("Test comment 2");
-        comment2.setCreatedAt(LocalDateTime.now());
+        List<CommentDto> result = mapper.mapToCommentDto(comments);
 
-        List<Comment> comments = Arrays.asList(comment1, comment2);
-
-        // Act
-        List<CommentDto> commentDtos = CommentMapper.mapToCommentDto(comments);
-
-        // Assert
-        assertEquals(comments.size(), commentDtos.size());
-        assertEquals(comments.get(0).getId(), commentDtos.get(0).getId());
-        assertEquals(comments.get(0).getText(), commentDtos.get(0).getText());
-        assertEquals(comments.get(0).getCreatedAt(), commentDtos.get(0).getCreated());
-        assertEquals(comments.get(1).getId(), commentDtos.get(1).getId());
-        assertEquals(comments.get(1).getText(), commentDtos.get(1).getText());
-        assertEquals(comments.get(1).getCreatedAt(), commentDtos.get(1).getCreated());
+        assertEquals(2, result.size());
+        assertEquals(comments.get(0).getId(), result.get(0).getId());
+        assertEquals(comments.get(1).getText(), result.get(1).getText());
     }
 }

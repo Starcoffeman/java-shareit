@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataJpaTest
 class ItemRequestRepositoryTest {
@@ -25,12 +25,10 @@ class ItemRequestRepositoryTest {
 
     @Test
     void findItemRequestsByRequester() {
-
         User user = new User();
         user.setName("Name");
         user.setEmail("name@mail.ru");
         long userId = userRepository.save(user).getId();
-
         List<ItemRequest> save = new ArrayList<>();
 
         ItemRequest itemRequest = new ItemRequest();
@@ -47,10 +45,10 @@ class ItemRequestRepositoryTest {
         itemRequest1.setCreated(Timestamp.valueOf(LocalDateTime.now()));
         itemRequest1.setItems(new ArrayList<>());
         save.add(itemRequest1);
-        long itemId2 =  itemRequestRepository.save(itemRequest1).getId();
+        long itemId2 = itemRequestRepository.save(itemRequest1).getId();
 
         List<ItemRequest> search = itemRequestRepository.findItemRequestsByRequestor(userId);
-        assertEquals(save,search);
+        assertEquals(save, search);
     }
 
     @Test
@@ -68,13 +66,12 @@ class ItemRequestRepositoryTest {
         itemRequestRepository.save(itemRequest);
 
         ItemRequest search = itemRequestRepository.findItemRequestByRequestor(userId);
-        assertEquals("Description",search.getDescription());
-        assertEquals(userId,search.getRequestor());
+        assertEquals("Description", search.getDescription());
+        assertEquals(userId, search.getRequestor());
     }
 
     @Test
     void findItemRequestById() {
-
         User user = new User();
         user.setName("Name");
         user.setEmail("name@mail.ru");
@@ -88,8 +85,8 @@ class ItemRequestRepositoryTest {
         long itemId = itemRequestRepository.save(itemRequest).getId();
 
         ItemRequest search = itemRequestRepository.findItemRequestById(itemId);
-        assertEquals("Description",search.getDescription());
-        assertEquals(id,search.getRequestor());
+        assertEquals("Description", search.getDescription());
+        assertEquals(id, search.getRequestor());
     }
 
     @Test
@@ -106,8 +103,8 @@ class ItemRequestRepositoryTest {
         itemRequest.setItems(new ArrayList<>());
         long itemId = itemRequestRepository.save(itemRequest).getId();
 
-        ItemRequest search = itemRequestRepository.findItemRequestByIdAndRequestor(itemId,id);
-        assertEquals("Description",search.getDescription());
-        assertEquals(id,search.getRequestor());
+        ItemRequest search = itemRequestRepository.findItemRequestByIdAndRequestor(itemId, id);
+        assertEquals("Description", search.getDescription());
+        assertEquals(id, search.getRequestor());
     }
 }
