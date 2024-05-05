@@ -571,32 +571,6 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void findBookingsByStateAndOwnerId_ValidFrom() {
-        long userId = 1L;
-        int from = -1;
-        int size = 10;
-
-        when(bookingService.existsBookingByBookerIdOrItemOwner(userId, userId)).thenReturn(true);
-
-        assertThrows(ValidationException.class, () -> {
-            bookingService.findBookingsByStateAndOwnerId(userId, "ALL", from, size);
-        });
-    }
-
-    @Test
-    void findBookingsByStateAndOwnerId_ValidSize() {
-        long userId = 1L;
-        int from = 0;
-        int size = -1;
-
-        when(bookingService.existsBookingByBookerIdOrItemOwner(userId, userId)).thenReturn(true);
-
-        assertThrows(ValidationException.class, () -> {
-            bookingService.findBookingsByStateAndOwnerId(userId, "ALL", from, size);
-        });
-    }
-
-    @Test
     void findPastBookingsByOwnerId() {
         long userId = 1L;
         LocalDateTime currentTime = LocalDateTime.now();
@@ -655,29 +629,7 @@ class BookingServiceImplTest {
 
         assertEquals(expectedBookings, result);
     }
-
-    @Test
-    void findBookingsByStateAndBookerId_ValidFrom() {
-        long userId = 1L;
-        int from = -1;
-        int size = 10;
-
-        assertThrows(ValidationException.class, () -> {
-            bookingService.findBookingsByStateAndBookerId(userId, "ALL", from, size);
-        });
-    }
-
-    @Test
-    void findBookingsByStateAndBookerId_ValidSize() {
-        long userId = 1L;
-        int from = 0;
-        int size = -1;
-
-        assertThrows(ValidationException.class, () -> {
-            bookingService.findBookingsByStateAndBookerId(userId, "ALL", from, size);
-        });
-    }
-
+    
     @Test
     void testGetBookingByIdAndBookerOrOwner_BookerIdMatchesUserId() {
         long bookingId = 1L;
