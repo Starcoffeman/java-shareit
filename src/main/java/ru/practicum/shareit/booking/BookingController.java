@@ -9,6 +9,7 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.intf.Create;
 
+import javax.validation.constraints.Min;
 import java.util.List;
 
 import static ru.practicum.shareit.item.ItemController.USER_ID;
@@ -45,26 +46,17 @@ public class BookingController {
         return bookingService.getBookingByIdAndBookerOrOwner(bookingId, userId);
     }
 
-    @GetMapping("/")
-    @ResponseStatus(HttpStatus.OK)
-    public List<Booking> findBookingsByBookerId(@RequestHeader(USER_ID) long userId,
-                                                @RequestParam(value = "from", required = false,
-                                                        defaultValue = "0") int from,
-                                                @RequestParam(value = "size", required = false,
-                                                        defaultValue = "20") int size) {
-        log.info("Received request to get bookings by booker with ID: {}", userId);
-        return bookingService.findBookingsByBookerId(userId, from, size);
-    }
-
     @GetMapping("/owner")
     @ResponseStatus(HttpStatus.OK)
     public List<Booking> findBookingsByStateAndOwnerId(@RequestHeader(USER_ID) long userId,
-                                                       @RequestParam(value = "state", required = false,
-                                                               defaultValue = "ALL") String state,
-                                                       @RequestParam(value = "from", required = false,
-                                                               defaultValue = "0") int from,
-                                                       @RequestParam(value = "size", required = false,
-                                                               defaultValue = "20") int size) {
+                                                       @RequestParam(value = "state", defaultValue = "ALL")
+                                                       String state,
+
+                                                       @Min(0) @RequestParam(value = "from", defaultValue = "0")
+                                                       int from,
+
+                                                       @Min(1) @RequestParam(value = "size", defaultValue = "20")
+                                                       int size) {
         log.info("Received request to get bookings by owner with ID: {} and state: {}", userId, state);
         return bookingService.findBookingsByStateAndOwnerId(userId, state, from, size);
     }
@@ -72,12 +64,15 @@ public class BookingController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<Booking> findBookingsByStateAndBookerId(@RequestHeader(USER_ID) long userId,
-                                                        @RequestParam(value = "state", required = false,
-                                                                defaultValue = "ALL") String state,
-                                                        @RequestParam(value = "from", required = false,
-                                                                defaultValue = "0") int from,
-                                                        @RequestParam(value = "size", required = false,
-                                                                defaultValue = "20") int size) {
+
+                                                        @RequestParam(value = "state", defaultValue = "ALL")
+                                                        String state,
+
+                                                        @Min(0) @RequestParam(value = "from", defaultValue = "0")
+                                                        int from,
+
+                                                        @Min(1) @RequestParam(value = "size", defaultValue = "20")
+                                                        int size) {
         log.info("Received request to get bookings by booker with ID: {} and state: {}", userId, state);
         return bookingService.findBookingsByStateAndBookerId(userId, state, from, size);
     }

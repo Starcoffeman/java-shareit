@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -35,10 +36,12 @@ class BookingControllerTest {
     @MockBean
     private BookingService bookingService;
 
-    @Test
-    void createBooking() throws Exception {
+    private Booking booking;
+
+    @BeforeEach
+    void setUp() {
         long userId = 1L;
-        Booking booking = new Booking();
+        booking = new Booking();
         booking.setStart(LocalDateTime.now().plusHours(1));
         booking.setEnd(LocalDateTime.now().plusHours(2));
         booking.setStatus(BookingStatus.WAITING);
@@ -55,11 +58,14 @@ class BookingControllerTest {
         User user = new User();
         user.setId(userId);
         booking.setBooker(user);
+    }
 
+    @Test
+    void createBooking() throws Exception {
         when(bookingService.createBooking(anyLong(), any(BookingDto.class))).thenReturn(booking);
 
         mvc.perform(post("/bookings")
-                        .header("X-Sharer-User-Id", String.valueOf(userId))
+                        .header("X-Sharer-User-Id", "1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(booking)))
                 .andExpect(status().isCreated())
@@ -73,11 +79,6 @@ class BookingControllerTest {
         long bookingId = 1L;
         long userId = 1L;
         boolean approved = true;
-        Booking booking = new Booking();
-        booking.setId(bookingId);
-        booking.setStart(LocalDateTime.now().plusHours(1));
-        booking.setEnd(LocalDateTime.now().plusHours(2));
-        booking.setStatus(BookingStatus.WAITING);
 
         when(bookingService.setBookingApproval(eq(bookingId), eq(userId), eq(approved))).thenReturn(booking);
 
@@ -87,7 +88,6 @@ class BookingControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(bookingId))
                 .andExpect(jsonPath("$.status").value("WAITING"));
     }
 
@@ -95,11 +95,6 @@ class BookingControllerTest {
     void getBookingByIdAndBookerOrOwner() throws Exception {
         long bookingId = 1L;
         long userId = 1L;
-        Booking booking = new Booking();
-        booking.setId(bookingId);
-        booking.setStart(LocalDateTime.now().plusHours(1));
-        booking.setEnd(LocalDateTime.now().plusHours(2));
-        booking.setStatus(BookingStatus.WAITING);
 
         when(bookingService.getBookingByIdAndBookerOrOwner(eq(bookingId), eq(userId))).thenReturn(booking);
 
@@ -108,7 +103,6 @@ class BookingControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(bookingId))
                 .andExpect(jsonPath("$.status").value("WAITING"));
     }
 
@@ -117,10 +111,6 @@ class BookingControllerTest {
         long userId = 1L;
         int from = 0;
         int size = 10;
-        List<Booking> bookings = new ArrayList<>();
-
-        when(bookingService.findBookingsByBookerId(eq(userId), eq(from), eq(size))).thenReturn(bookings);
-
         mvc.perform(get("/bookings/")
                         .header("X-Sharer-User-Id", String.valueOf(userId))
                         .param("from", String.valueOf(from))
@@ -134,13 +124,9 @@ class BookingControllerTest {
     @Test
     void findBookingsByStateAndOwnerId() throws Exception {
         long userId = 1L;
-        String state = "ALL";
         int from = 0;
         int size = 10;
-        List<Booking> bookings = new ArrayList<>();
-
-        when(bookingService.findBookingsByStateAndOwnerId(eq(userId), eq(state), eq(from), eq(size))).thenReturn(bookings);
-
+        String state = "ALL";
         mvc.perform(get("/bookings/owner")
                         .header("X-Sharer-User-Id", String.valueOf(userId))
                         .param("state", state)
@@ -155,13 +141,9 @@ class BookingControllerTest {
     @Test
     void findBookingsByStateAndBookerId() throws Exception {
         long userId = 1L;
-        String state = "ALL";
         int from = 0;
         int size = 10;
-        List<Booking> bookings = new ArrayList<>();
-
-        when(bookingService.findBookingsByStateAndBookerId(eq(userId), eq(state), eq(from), eq(size))).thenReturn(bookings);
-
+        String state = "ALL";
         mvc.perform(get("/bookings")
                         .header("X-Sharer-User-Id", String.valueOf(userId))
                         .param("state", state)

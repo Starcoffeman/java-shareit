@@ -34,7 +34,7 @@ public class Item {
     @Column(name = "description")
     private String description;
 
-    @NotNull(groups = Create.class, message = "Описание не может быть пустым")
+    @NotNull(groups = Create.class, message = "Доступ не может быть равен null")
     @Column(name = "is_available")
     private Boolean available;
 

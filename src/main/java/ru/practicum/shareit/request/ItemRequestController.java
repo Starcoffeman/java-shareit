@@ -35,6 +35,8 @@ public class ItemRequestController {
     }
 
     @GetMapping("/{requestId}")
+    @ResponseStatus(HttpStatus.OK)
+
     public ItemRequestDto getRequestById(@PathVariable Long requestId,
                                          @RequestHeader(USER_ID) long userId) {
         log.info("Fetching request with ID {} for user with ID {}", requestId, userId);

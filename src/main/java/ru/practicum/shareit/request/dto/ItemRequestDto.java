@@ -20,7 +20,7 @@ public class ItemRequestDto {
 
     private long id;
 
-    @NotNull(groups = Create.class, message = "Описание не может быть null")
+//    @NotNull(groups = Create.class, message = "Описание не может быть null")
     @NotBlank(groups = Create.class, message = "Описание не может быть пустым")
     private String description;
 
