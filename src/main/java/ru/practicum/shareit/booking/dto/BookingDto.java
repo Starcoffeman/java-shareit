@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.intf.Create;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.constraints.Future;
 import javax.validation.constraints.FutureOrPresent;
@@ -29,9 +31,9 @@ public class BookingDto {
     private LocalDateTime end;
 
     @NotNull(groups = Create.class, message = "Предмет не может быть пустым")
-    private long itemId;
+    private ItemDto item;
 
-    private long bookerId;
+    private UserDto booker;
 
     private BookingStatus status;
 }

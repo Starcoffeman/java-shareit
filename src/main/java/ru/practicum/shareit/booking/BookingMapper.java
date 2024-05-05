@@ -3,7 +3,10 @@ package ru.practicum.shareit.booking;
 import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.item.ItemMapper;
+import ru.practicum.shareit.user.UserMapper;
 
 @Mapper
 @Component
@@ -18,9 +21,24 @@ public class BookingMapper {
         bookingDto.setId(booking.getId());
         bookingDto.setStart(booking.getStart());
         bookingDto.setEnd(booking.getEnd());
-        bookingDto.setBookerId(booking.getBooker().getId());
-        bookingDto.setItemId(booking.getItem().getId());
+        bookingDto.setBooker(UserMapper.mapToUserDto(booking.getBooker()));
+        bookingDto.setItem(ItemMapper.mapToItemDto(booking.getItem()));
         bookingDto.setStatus(booking.getStatus());
         return bookingDto;
+    }
+
+    public static BookingRequestDto mapToBookingRequestDto(BookingDto bookingDto) {
+        if (bookingDto == null) {
+            return null;
+        }
+
+        BookingRequestDto bookingRequestDto = new BookingRequestDto();
+        bookingRequestDto.setId(bookingDto.getId());
+        bookingRequestDto.setStart(bookingDto.getStart());
+        bookingRequestDto.setEnd(bookingDto.getEnd());
+        bookingRequestDto.setItemId(bookingDto.getItem().getId());
+        bookingRequestDto.setBookerId(bookingDto.getBooker().getId());
+        bookingRequestDto.setStatus(bookingDto.getStatus());
+        return bookingRequestDto;
     }
 }

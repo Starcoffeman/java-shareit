@@ -9,6 +9,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.item.model.Item;
@@ -62,7 +63,7 @@ class BookingControllerTest {
 
     @Test
     void createBooking() throws Exception {
-        when(bookingService.createBooking(anyLong(), any(BookingDto.class))).thenReturn(booking);
+        when(bookingService.createBooking(anyLong(), any(BookingRequestDto.class))).thenReturn(booking);
 
         mvc.perform(post("/bookings")
                         .header("X-Sharer-User-Id", "1")

@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.exceptions.ResourceNotFoundException;
@@ -126,7 +127,7 @@ class BookingServiceImplTest {
     void createBookingStartIsNull() {
         long userId = 1L;
         long itemId = 2L;
-        BookingDto bookingDto = new BookingDto();
+        BookingRequestDto bookingDto = new BookingRequestDto();
         bookingDto.setStatus(BookingStatus.WAITING);
         bookingDto.setStart(null);
         bookingDto.setEnd(LocalDateTime.now().plusDays(1));
@@ -140,7 +141,7 @@ class BookingServiceImplTest {
     void createBookingEndIsNull() {
         long userId = 1L;
         long itemId = 2L;
-        BookingDto bookingDto = new BookingDto();
+        BookingRequestDto bookingDto = new BookingRequestDto();
         bookingDto.setStatus(BookingStatus.WAITING);
         bookingDto.setStart(LocalDateTime.now());
         bookingDto.setEnd(null);
@@ -153,7 +154,7 @@ class BookingServiceImplTest {
     @Test
     void createBookingUserNotFound() {
         long userId = 1L;
-        BookingDto bookingDto = new BookingDto();
+        BookingRequestDto bookingDto = new BookingRequestDto();
         bookingDto.setStart(LocalDateTime.now().plusHours(1));
         bookingDto.setEnd(LocalDateTime.now().plusHours(2));
         when(userRepository.existsById(userId)).thenReturn(false);
@@ -169,7 +170,7 @@ class BookingServiceImplTest {
     void createBookingItemNotFound() {
         long userId = 1L;
         long itemId = 1L;
-        BookingDto bookingDto = new BookingDto();
+        BookingRequestDto bookingDto = new BookingRequestDto();
         bookingDto.setItemId(itemId);
         bookingDto.setStart(LocalDateTime.now().plusHours(1));
         bookingDto.setEnd(LocalDateTime.now().plusHours(2));
@@ -187,7 +188,7 @@ class BookingServiceImplTest {
     void createBookingItemNotAvailable() {
         long userId = 1L;
         long itemId = 1L;
-        BookingDto bookingDto = new BookingDto();
+        BookingRequestDto bookingDto = new BookingRequestDto();
         bookingDto.setItemId(itemId);
         bookingDto.setStart(LocalDateTime.now().plusHours(1));
         bookingDto.setEnd(LocalDateTime.now().plusHours(2));
@@ -209,7 +210,7 @@ class BookingServiceImplTest {
     void createBooking_StartTimeInPast() {
         long userId = 1L;
         long itemId = 1L;
-        BookingDto bookingDto = new BookingDto();
+        BookingRequestDto bookingDto = new BookingRequestDto();
         bookingDto.setItemId(itemId);
         bookingDto.setStart(LocalDateTime.now().minusDays(10));
         bookingDto.setEnd(LocalDateTime.now().plusHours(2));
@@ -230,7 +231,7 @@ class BookingServiceImplTest {
     void createBooking_EndTimeInPast() {
         long userId = 1L;
         long itemId = 1L;
-        BookingDto bookingDto = new BookingDto();
+        BookingRequestDto bookingDto = new BookingRequestDto();
         bookingDto.setItemId(itemId);
         bookingDto.setStart(LocalDateTime.now().plusHours(1));
         bookingDto.setEnd(LocalDateTime.now().minusDays(2));
@@ -251,7 +252,7 @@ class BookingServiceImplTest {
     void createBooking_EndAndStartEquals() {
         long userId = 1L;
         long itemId = 1L;
-        BookingDto bookingDto = new BookingDto();
+        BookingRequestDto bookingDto = new BookingRequestDto();
         bookingDto.setItemId(itemId);
         LocalDateTime sameTime = LocalDateTime.now().plusHours(1);
         bookingDto.setStart(sameTime);
@@ -273,7 +274,7 @@ class BookingServiceImplTest {
     void createBooking_UserOwnsItem() {
         long userId = 1L;
         long itemId = 1L;
-        BookingDto bookingDto = new BookingDto();
+        BookingRequestDto bookingDto = new BookingRequestDto();
         bookingDto.setStart(LocalDateTime.now().plusHours(1));
         bookingDto.setEnd(LocalDateTime.now().plusHours(2));
         bookingDto.setItemId(itemId);
@@ -295,7 +296,7 @@ class BookingServiceImplTest {
     void createBooking_Success() {
         long userId = 1L;
         long itemId = 1L;
-        BookingDto bookingDto = new BookingDto();
+        BookingRequestDto bookingDto = new BookingRequestDto();
         LocalDateTime start = LocalDateTime.now().plusHours(1);
         LocalDateTime end = LocalDateTime.now().plusHours(2);
         bookingDto.setStart(start);
@@ -629,7 +630,7 @@ class BookingServiceImplTest {
 
         assertEquals(expectedBookings, result);
     }
-    
+
     @Test
     void testGetBookingByIdAndBookerOrOwner_BookerIdMatchesUserId() {
         long bookingId = 1L;

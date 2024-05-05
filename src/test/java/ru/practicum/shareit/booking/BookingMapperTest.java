@@ -35,8 +35,8 @@ class BookingMapperTest {
         assertEquals(booking.getId(), result.getId());
         assertEquals(booking.getStart(), result.getStart());
         assertEquals(booking.getEnd(), result.getEnd());
-        assertEquals(booking.getBooker().getId(), result.getBookerId());
-        assertEquals(booking.getItem().getId(), result.getItemId());
+        assertEquals(booking.getBooker().getId(), result.getBooker().getId());
+        assertEquals(booking.getItem().getId(), result.getItem().getId());
         assertEquals(booking.getStatus(), result.getStatus());
     }
 }
