@@ -95,6 +95,7 @@ public class ItemServiceImpl implements ItemService {
         return itemDto;
     }
 
+    @Override
     public List<CommentDto> getNameAuthor(Item item) {
         List<CommentDto> commentDtos = new ArrayList<>();
         for (Comment comment : item.getComments()) {
@@ -195,14 +196,14 @@ public class ItemServiceImpl implements ItemService {
         return commentDto;
     }
 
-    BookingDto findLastBookingByItemId(long itemId) {
+    private BookingDto findLastBookingByItemId(long itemId) {
         Booking lastBookings = bookingRepository.findFirstBookingByItemIdAndStatusAndStartIsBefore(itemId,
                 BookingStatus.APPROVED, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
         BookingDto lastBookingsDTO = BookingMapper.mapToBookingDto(lastBookings);
         return lastBookingsDTO;
     }
 
-    BookingDto findNextBookingByItemId(long itemId) {
+    private BookingDto findNextBookingByItemId(long itemId) {
         Booking nextBookings = bookingRepository.findFirstBookingByItemIdAndStatusAndStartIsAfter(itemId,
                 BookingStatus.APPROVED, LocalDateTime.now(), Sort.by(Sort.Direction.ASC, "start"));
         BookingDto nextBookingsDTO = BookingMapper.mapToBookingDto(nextBookings);
