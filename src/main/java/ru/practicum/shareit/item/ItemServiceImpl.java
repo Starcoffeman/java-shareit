@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.comment.CommentMapper;
@@ -196,17 +197,17 @@ public class ItemServiceImpl implements ItemService {
         return commentDto;
     }
 
-    private BookingDto findLastBookingByItemId(long itemId) {
+    private BookingRequestDto findLastBookingByItemId(long itemId) {
         Booking lastBookings = bookingRepository.findFirstBookingByItemIdAndStatusAndStartIsBefore(itemId,
                 BookingStatus.APPROVED, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
         BookingDto lastBookingsDTO = BookingMapper.mapToBookingDto(lastBookings);
-        return lastBookingsDTO;
+        return BookingMapper.mapToBookingRequestDto(lastBookingsDTO);
     }
 
-    private BookingDto findNextBookingByItemId(long itemId) {
+    private BookingRequestDto findNextBookingByItemId(long itemId) {
         Booking nextBookings = bookingRepository.findFirstBookingByItemIdAndStatusAndStartIsAfter(itemId,
                 BookingStatus.APPROVED, LocalDateTime.now(), Sort.by(Sort.Direction.ASC, "start"));
         BookingDto nextBookingsDTO = BookingMapper.mapToBookingDto(nextBookings);
-        return nextBookingsDTO;
+        return BookingMapper.mapToBookingRequestDto(nextBookingsDTO);
     }
 }
