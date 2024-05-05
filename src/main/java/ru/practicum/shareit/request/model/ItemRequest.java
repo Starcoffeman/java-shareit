@@ -25,11 +25,11 @@ public class ItemRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @NotNull(groups = Create.class, message = "Описание не может быть пустым")
+    @NotBlank(groups = Create.class, message = "Описание не может быть пустым")
     @Column(name = "description")
     private String description;
 
-    @NotBlank(groups = Create.class, message = "Requestor не может быть равен null")
+    @NotNull(groups = Create.class, message = "Requestor не может быть равен null")
     @Column(name = "requestor_id")
     private long requestor;
 
