@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -32,16 +33,60 @@ class ItemControllerTest {
     @MockBean
     private ItemService itemService;
 
-    @Test
-    void getItemById() throws Exception {
-        long userId = 1L;
-        long itemId = 1L;
-        ItemDto itemDto = new ItemDto();
+    private long userId;
+    private long itemId;
+    private ItemDto itemDto;
+    private Item item;
+    private String searchText;
+    private List<ItemDto> items;
+    private CommentDto commentDto;
+    private String commentText;
+
+    @BeforeEach
+    void setUp() {
+        userId = 1L;
+        itemId = 1L;
+
+        // Setting up itemDto
+        itemDto = new ItemDto();
         itemDto.setId(itemId);
         itemDto.setName("Test Item");
         itemDto.setDescription("Test Description");
         itemDto.setAvailable(true);
 
+        // Setting up item
+        item = new Item();
+        item.setName("Test Item");
+        item.setDescription("Test Description");
+        item.setAvailable(true);
+        item.setOwner(userId);
+        item.setRequestId(null);
+        item.setComments(new ArrayList<>());
+
+        // Setting up searchText
+        searchText = "test";
+
+        // Setting up items list
+        items = new ArrayList<>();
+        ItemDto item1 = new ItemDto();
+        item1.setName("Test Item 1");
+        item1.setDescription("Description 1");
+        item1.setAvailable(true);
+        items.add(item1);
+        ItemDto item2 = new ItemDto();
+        item2.setName("Test Item 2");
+        item2.setDescription("Description 2");
+        item2.setAvailable(false);
+        items.add(item2);
+
+        // Setting up commentDto
+        commentText = "Test comment";
+        commentDto = new CommentDto();
+        commentDto.setText(commentText);
+    }
+
+    @Test
+    void getItemById() throws Exception {
         when(itemService.getItemById(eq(userId), eq(itemId))).thenReturn(itemDto);
 
         mvc.perform(get("/items/{itemId}", itemId)
@@ -49,39 +94,30 @@ class ItemControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(itemId))
-                .andExpect(jsonPath("$.name").value("Test Item"))
-                .andExpect(jsonPath("$.description").value("Test Description"))
-                .andExpect(jsonPath("$.available").value(true));
+                .andExpect(jsonPath("$.name").value(itemDto.getName()))
+                .andExpect(jsonPath("$.description").value(itemDto.getDescription()))
+                .andExpect(jsonPath("$.available").value(itemDto.getAvailable()));
     }
 
     @Test
     void saveItem() throws Exception {
-        long userId = 1L;
-        Item item1 = new Item();
-        item1.setName("Test Item 1");
-        item1.setDescription("Test Description 1");
-        item1.setAvailable(true);
-        item1.setOwner(userId);
-        item1.setRequestId(null);
-        item1.setComments(new ArrayList<>());
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("Test Item 1");
+        itemDto.setDescription("Test Description 1");
+        itemDto.setAvailable(true);
 
-        when(itemService.saveItem(anyLong(), any(ItemDto.class)))
-                .thenAnswer(invocationOnMock -> {
-                    ItemDto itemDto = invocationOnMock.getArgument(1);
-                    return itemDto;
-                });
+        when(itemService.saveItem(anyLong(), any(ItemDto.class))).thenReturn(itemDto);
 
         mvc.perform(post("/items")
                         .header("X-Sharer-User-Id", String.valueOf(userId))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(item1)))
+                        .content(mapper.writeValueAsString(itemDto)))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.name").value("Test Item 1"))
                 .andExpect(jsonPath("$.description").value("Test Description 1"))
                 .andExpect(jsonPath("$.available").value(true));
     }
-
 
     @Test
     void update() throws Exception {
@@ -164,7 +200,6 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$[1].description").value("Description 2"))
                 .andExpect(jsonPath("$[1].available").value(false));
     }
-
 
     @Test
     void addComment() throws Exception {
