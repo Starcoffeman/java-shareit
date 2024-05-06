@@ -8,6 +8,9 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.user.UserMapper;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Mapper
 @Component
 public class BookingMapper {
@@ -40,5 +43,11 @@ public class BookingMapper {
         bookingRequestDto.setBookerId(bookingDto.getBooker().getId());
         bookingRequestDto.setStatus(bookingDto.getStatus());
         return bookingRequestDto;
+    }
+
+    public static List<BookingDto> mapToBookingDtoList(List<Booking> bookings) {
+        return bookings.stream()
+                .map(BookingMapper::mapToBookingDto)
+                .collect(Collectors.toList());
     }
 }

@@ -7,7 +7,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
-import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.intf.Create;
 
 import javax.validation.constraints.Min;
@@ -26,7 +25,7 @@ public class BookingController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public BookingDto createBooking(@RequestHeader(USER_ID) long userId,
-                                 @RequestBody @Validated(Create.class) BookingRequestDto bookingDto) {
+                                    @RequestBody @Validated(Create.class) BookingRequestDto bookingDto) {
         log.info("Received request to save new booking for user with ID: {}", userId);
         return BookingMapper.mapToBookingDto(bookingService.createBooking(userId, bookingDto));
     }
@@ -34,8 +33,8 @@ public class BookingController {
     @PatchMapping("/{bookingId}")
     @ResponseStatus(HttpStatus.OK)
     public BookingDto setBookingApproval(@RequestHeader(USER_ID) long userId,
-                                      @PathVariable long bookingId,
-                                      @RequestParam("approved") boolean approved) {
+                                         @PathVariable long bookingId,
+                                         @RequestParam("approved") boolean approved) {
         log.info("Received request to update booking status for user with ID: {}", userId);
         return BookingMapper.mapToBookingDto(bookingService.setBookingApproval(userId, bookingId, approved));
     }
@@ -49,28 +48,28 @@ public class BookingController {
 
     @GetMapping("/owner")
     @ResponseStatus(HttpStatus.OK)
-    public List<Booking> findBookingsByStateAndOwnerId(@RequestHeader(USER_ID) long userId,
-                                                       @RequestParam(value = "state", defaultValue = "ALL")
-                                                       String state,
-                                                       @Min(0) @RequestParam(value = "from", defaultValue = "0")
-                                                       int from,
-                                                       @Min(1) @RequestParam(value = "size", defaultValue = "20")
-                                                       int size) {
+    public List<BookingDto> findBookingsByStateAndOwnerId(@RequestHeader(USER_ID) long userId,
+                                                          @RequestParam(value = "state", defaultValue = "ALL")
+                                                          String state,
+                                                          @Min(0) @RequestParam(value = "from", defaultValue = "0")
+                                                          int from,
+                                                          @Min(1) @RequestParam(value = "size", defaultValue = "20")
+                                                          int size) {
         log.info("Received request to get bookings by owner with ID: {} and state: {}", userId, state);
-        return bookingService.findBookingsByStateAndOwnerId(userId, state, from, size);
+        return BookingMapper.mapToBookingDtoList(bookingService.findBookingsByStateAndOwnerId(userId, state, from, size));
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<Booking> findBookingsByStateAndBookerId(@RequestHeader(USER_ID) long userId,
-                                                        @RequestParam(value = "state", defaultValue = "ALL")
-                                                        String state,
-                                                        @Min(0) @RequestParam(value = "from", defaultValue = "0")
-                                                        int from,
-                                                        @Min(1) @RequestParam(value = "size", defaultValue = "20")
-                                                        int size) {
+    public List<BookingDto> findBookingsByStateAndBookerId(@RequestHeader(USER_ID) long userId,
+                                                           @RequestParam(value = "state", defaultValue = "ALL")
+                                                           String state,
+                                                           @Min(0) @RequestParam(value = "from", defaultValue = "0")
+                                                           int from,
+                                                           @Min(1) @RequestParam(value = "size", defaultValue = "20")
+                                                           int size) {
         log.info("Received request to get bookings by booker with ID: {} and state: {}", userId, state);
-        return bookingService.findBookingsByStateAndBookerId(userId, state, from, size);
+        return BookingMapper.mapToBookingDtoList(bookingService.findBookingsByStateAndBookerId(userId, state, from, size));
     }
 }
 
