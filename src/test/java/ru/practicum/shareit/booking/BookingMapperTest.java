@@ -11,6 +11,8 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -68,5 +70,21 @@ class BookingMapperTest {
         assertEquals(booking.getBooker().getId(), result.getBookerId());
         assertEquals(booking.getItem().getId(), result.getItemId());
         assertEquals(booking.getStatus(), result.getStatus());
+    }
+
+    @Test
+    void mapToBookingDtoList() {
+        List<Booking> bookings = new ArrayList<>();
+        Booking booking = new Booking();
+        booking.setId(1L);
+        booking.setStart(LocalDateTime.now());
+        booking.setEnd(LocalDateTime.now().plusHours(1));
+        booking.setStatus(BookingStatus.WAITING);
+        bookings.add(booking);
+
+        List<BookingDto> bookingDtos = BookingMapper.mapToBookingDtoList(bookings);
+
+        assertNotNull(bookingDtos);
+        assertEquals(bookings.size(), bookingDtos.size());
     }
 }
