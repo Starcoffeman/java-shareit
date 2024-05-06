@@ -1,5 +1,6 @@
 package ru.practicum.shareit.comment;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,36 +29,45 @@ class CommentServiceImplTest {
     @InjectMocks
     private CommentServiceImpl commentService;
 
+    private Comment comment;
+    private UserDto authorDto;
+
+    @BeforeEach
+    void setUp() {
+        Long commentId = 1L;
+        Long authorId = 2L;
+        String authorName = "John Doe";
+
+        comment = new Comment();
+        comment.setId(commentId);
+        comment.setAuthorId(authorId);
+
+        authorDto = new UserDto();
+        authorDto.setId(authorId);
+        authorDto.setName(authorName);
+    }
+
     @Test
     void getNameAuthorByCommentId_CommentFound_ReturnsAuthorName() {
         Long commentId = 1L;
         Long authorId = 2L;
-        String authorName = "John Doe";
-        Comment comment = new Comment();
-        comment.setAuthorId(authorId);
-        UserDto authorDto = new UserDto();
-        authorDto.setId(authorId);
-        authorDto.setName(authorName);
 
         when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
         when(userService.getUserById(authorId)).thenReturn(authorDto);
-        String result = commentService.getNameAuthorByCommentId(commentId);
 
-        assertEquals(authorName, result);
+        String result = commentService.getNameAuthorByCommentId(commentId);
+        assertEquals(authorDto.getName(), result);
         verify(commentRepository, times(1)).findById(commentId);
-        verify(userService, times(1)).getUserById(authorId);
+        verify(userService, times(1)).getUserById(comment.getAuthorId());
     }
 
     @Test
     void getNameAuthorByCommentId_CommentNotFound_ThrowsResourceNotFoundException() {
         Long commentId = 1L;
-
         when(commentRepository.findById(commentId)).thenReturn(Optional.empty());
-
         assertThrows(ResourceNotFoundException.class, () -> {
             commentService.getNameAuthorByCommentId(commentId);
         });
-
         verify(commentRepository, times(1)).findById(commentId);
         verifyNoInteractions(userService);
     }

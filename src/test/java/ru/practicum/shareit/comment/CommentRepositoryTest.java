@@ -1,5 +1,6 @@
 package ru.practicum.shareit.comment;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -26,24 +27,30 @@ class CommentRepositoryTest {
     @Autowired
     private ItemRepository itemRepository;
 
-    @Test
-    void findAllByItemId() {
-        User owner = new User();
+    private User owner;
+    private Item item;
+
+    @BeforeEach
+    void setUp() {
+        owner = new User();
         owner.setName("Owner Name");
         owner.setEmail("john.doe@example.com");
-        userRepository.save(owner);
+        owner = userRepository.save(owner);
 
-        Item item = new Item();
+        item = new Item();
         item.setName("Test Item");
         item.setDescription("Test Description");
         item.setAvailable(true);
         item.setOwner(owner.getId());
-        Item savedItem = itemRepository.save(item);
+        item = itemRepository.save(item);
+    }
 
+    @Test
+    void findAllByItemId() {
         Comment comment = new Comment();
         comment.setText("Test comment");
-        comment.setItemId(savedItem.getId());  
-        comment.setAuthorId(owner.getId());  
+        comment.setItemId(item.getId());
+        comment.setAuthorId(owner.getId());
         comment.setCreatedAt(LocalDateTime.now());
         Comment savedComment = commentRepository.save(comment);
 

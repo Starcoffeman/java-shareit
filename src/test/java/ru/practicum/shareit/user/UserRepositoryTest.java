@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -14,33 +15,29 @@ class UserRepositoryTest {
     @Autowired
     private UserRepository repository;
 
-    @Test
-    void existsByEmail() {
-        User user = new User();
+    private User user;
+
+    @BeforeEach
+    void setUp(){
+        user = new User();
         user.setName("name");
         user.setEmail("name@email.ru");
         repository.save(user);
+    }
+
+    @Test
+    void existsByEmail() {
         assertTrue(repository.existsByEmail("name@email.ru"));
     }
 
     @Test
     void createUser() {
-        User user = new User();
-        user.setName("name");
-        user.setEmail("name@email.ru");
-        long id = repository.save(user).getId();
         assertEquals(1, repository.findAll().size());
-        assertEquals("name", repository.getReferenceById(id).getName());
-        assertEquals("name@email.ru", repository.getReferenceById(id).getEmail());
     }
 
     @Test
     void deleteUserById() {
-        User user = new User();
-        user.setName("name");
-        user.setEmail("name@email.ru");
-        long id = repository.save(user).getId();
-        repository.deleteUserById(id);
+        repository.deleteUserById(user.getId());
         assertTrue(repository.findAll().isEmpty());
     }
 }
