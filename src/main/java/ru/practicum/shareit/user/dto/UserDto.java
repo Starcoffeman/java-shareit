@@ -23,5 +23,7 @@ public class UserDto {
     @NotBlank(groups = Create.class, message = "Электронная почта не может быть пустым")
     @Email(groups = Create.class, message = "Электронная почта не может быть пустой и должна содержать символ @")
     private String email;
+
+
 }
 
