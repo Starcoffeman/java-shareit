@@ -26,7 +26,7 @@ public class ItemController {
 
     @PostMapping
     public ResponseEntity<Object> saveItem(@RequestHeader("X-Sharer-User-Id") long userId,
-                                           @RequestBody @Validated(Create.class) ru.practicum.shareit.item.dto.ItemDto itemDto) {
+                                           @RequestBody @Validated(Create.class) ItemDto itemDto) {
         log.info("Forwarding request to save item: {}", itemDto);
         return itemClient.saveItem(userId, itemDto);
     }
