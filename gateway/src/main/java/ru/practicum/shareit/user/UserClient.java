@@ -6,8 +6,10 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.shareit.client.BaseClient;
+import ru.practicum.shareit.intf.Create;
 import ru.practicum.shareit.user.dto.UserDto;
 
 @Service
@@ -24,7 +26,7 @@ public class UserClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> saveUser(UserDto userDto) {
+    public ResponseEntity<Object> saveUser(@Validated(Create.class) UserDto userDto) {
         return post("", userDto);
     }
 

@@ -6,10 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.intf.Create;
 import ru.practicum.shareit.user.dto.UserDto;
-
-
-import javax.validation.Valid;
 
 @Controller
 @RequestMapping(path = "/users")
@@ -20,7 +18,7 @@ public class UserController {
     private final UserClient userClient;
 
     @PostMapping
-    public ResponseEntity<Object> saveUser(@RequestBody @Valid UserDto userDto) {
+    public ResponseEntity<Object> saveUser(@RequestBody @Validated(Create.class) UserDto userDto) {
         log.info("Forwarding request to save user {}", userDto);
         return userClient.saveUser(userDto);
     }
@@ -32,7 +30,7 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public ResponseEntity<Object> updateUser(@PathVariable("userId") Long userId, @RequestBody @Valid UserDto userDto) {
+    public ResponseEntity<Object> updateUser(@PathVariable("userId") Long userId, @RequestBody UserDto userDto) {
         log.info("Forwarding request to update user with id {} to {}", userId, userDto);
         return userClient.updateUser(userId, userDto);
     }

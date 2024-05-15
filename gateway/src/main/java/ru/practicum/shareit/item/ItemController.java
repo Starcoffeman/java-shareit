@@ -4,10 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.intf.Create;
+import ru.practicum.shareit.intf.Update;
 import ru.practicum.shareit.item.dto.ItemDto;
-
-import javax.validation.Valid;
 
 @Controller
 @RequestMapping("/items")
@@ -25,7 +26,7 @@ public class ItemController {
 
     @PostMapping
     public ResponseEntity<Object> saveItem(@RequestHeader("X-Sharer-User-Id") long userId,
-                                           @RequestBody @Valid ru.practicum.shareit.item.dto.ItemDto itemDto) {
+                                           @RequestBody @Validated(Create.class) ru.practicum.shareit.item.dto.ItemDto itemDto) {
         log.info("Forwarding request to save item: {}", itemDto);
         return itemClient.saveItem(userId, itemDto);
     }
@@ -33,7 +34,7 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     public ResponseEntity<Object> updateItem(@RequestHeader("X-Sharer-User-Id") long userId,
                                              @PathVariable("itemId") long itemId,
-                                             @RequestBody @Valid ItemDto itemDto) {
+                                             @RequestBody @Validated(Update.class) ItemDto itemDto) {
         log.info("Forwarding request to update item with id: {}", itemId);
         return itemClient.updateItem(userId, itemId, itemDto);
     }
