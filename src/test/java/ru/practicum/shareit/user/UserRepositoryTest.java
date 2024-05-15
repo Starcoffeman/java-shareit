@@ -18,7 +18,7 @@ class UserRepositoryTest {
     private User user;
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
         user = new User();
         user.setName("name");
         user.setEmail("name@email.ru");

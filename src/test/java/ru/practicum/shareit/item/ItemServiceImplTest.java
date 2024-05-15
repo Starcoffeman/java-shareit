@@ -62,16 +62,13 @@ class ItemServiceImplTest {
         itemDto.setNextBooking(null);
         itemDto.setRequestId(0);
         itemDto.setComments(new ArrayList<>());
-        
         when(userService.getUserById(1L)).thenReturn(ownerDto);
         when(itemRepository.save(any(Item.class))).thenAnswer(invocation -> {
             Item item = invocation.getArgument(0);
             item.setId(1L);
             return item;
         });
-
         ItemDto savedItemDto = itemService.saveItem(1L, itemDto);
-
         verify(itemRepository, times(1)).save(any(Item.class));
         verify(userService, times(1)).getUserById(1L);
         assertNotNull(savedItemDto.getId());
@@ -91,7 +88,6 @@ class ItemServiceImplTest {
         itemDto.setNextBooking(null);
         itemDto.setRequestId(0);
         itemDto.setComments(new ArrayList<>());
-        
         assertThrows(ValidationException.class, () -> itemService.saveItem(-1L, itemDto));
     }
 
@@ -102,14 +98,13 @@ class ItemServiceImplTest {
         ownerDto.setName("Owner Name");
         ownerDto.setEmail("owner@example.com");
         ItemDto itemDto = new ItemDto();
-        itemDto.setName(null); 
+        itemDto.setName(null);
         itemDto.setDescription("Test Description");
         itemDto.setAvailable(true);
         itemDto.setLastBooking(null);
         itemDto.setNextBooking(null);
         itemDto.setRequestId(0);
         itemDto.setComments(new ArrayList<>());
-
         assertThrows(ValidationException.class, () -> itemService.saveItem(1L, itemDto));
     }
 
@@ -129,14 +124,10 @@ class ItemServiceImplTest {
         comments.add(comment1);
         comments.add(comment2);
         item.setComments(comments);
-
         when(commentService.getNameAuthorByCommentId(1L)).thenReturn("Author 1");
         when(commentService.getNameAuthorByCommentId(2L)).thenReturn("Author 2");
-
         List<CommentDto> commentDtos = itemService.getNameAuthor(item);
-        
         assertEquals(2, commentDtos.size());
-
         CommentDto commentDto1 = commentDtos.get(0);
         assertEquals("Comment 1", commentDto1.getText());
         assertEquals("Author 1", commentDto1.getAuthorName());
@@ -149,7 +140,6 @@ class ItemServiceImplTest {
     void testSearchItemsWithEmptySearchText() {
         String emptySearchText = "";
         List<ItemDto> result = itemService.searchItems(emptySearchText);
-        
         assertEquals(0, result.size());
     }
 
@@ -157,7 +147,6 @@ class ItemServiceImplTest {
     void testSearchItemsWithBlankSearchText() {
         String blankSearchText = "   ";
         List<ItemDto> result = itemService.searchItems(blankSearchText);
-        
         assertEquals(0, result.size());
     }
 
@@ -177,12 +166,8 @@ class ItemServiceImplTest {
         item2.setDescription("This is another test item 2");
         item2.setAvailable(true);
         items.add(item2);
-        
-        when(itemRepository.findByDescriptionContainingIgnoreCaseAndAvailableIsTrueOrNameContainingIgnoreCaseAndAvailableIsTrue(searchText, searchText))
-                .thenReturn(items);
-        
+        when(itemRepository.findByDescriptionContainingIgnoreCaseAndAvailableIsTrueOrNameContainingIgnoreCaseAndAvailableIsTrue(searchText, searchText)).thenReturn(items);
         List<ItemDto> result = itemService.searchItems(searchText);
-
         assertEquals(2, result.size());
         assertEquals("Test Item 1", result.get(0).getName());
         assertEquals("This is a test item 1", result.get(0).getDescription());
@@ -195,7 +180,6 @@ class ItemServiceImplTest {
         long userId = 1L;
         long itemId = 1L;
         String commentText = "";
-
         assertThrows(ValidationException.class, () -> itemService.addComment(userId, itemId, commentText));
     }
 
@@ -204,11 +188,7 @@ class ItemServiceImplTest {
         long userId = 1L;
         long itemId = 1L;
         String commentText = "Test comment";
-        
-        when(bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndBefore(
-                eq(itemId), eq(userId), eq(BookingStatus.APPROVED), any(LocalDateTime.class)))
-                .thenReturn(false);
-
+        when(bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndBefore(eq(itemId), eq(userId), eq(BookingStatus.APPROVED), any(LocalDateTime.class))).thenReturn(false);
         assertThrows(ValidationException.class, () -> itemService.addComment(userId, itemId, commentText));
     }
 
@@ -217,11 +197,7 @@ class ItemServiceImplTest {
         long userId = 1L;
         long itemId = 1L;
         String commentText = " ";
-
-        when(bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndBefore(
-                eq(itemId), eq(userId), eq(BookingStatus.APPROVED), any(LocalDateTime.class)))
-                .thenReturn(true);
-
+        when(bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndBefore(eq(itemId), eq(userId), eq(BookingStatus.APPROVED), any(LocalDateTime.class))).thenReturn(true);
         assertThrows(ValidationException.class, () -> itemService.addComment(userId, itemId, commentText));
     }
 
@@ -230,11 +206,7 @@ class ItemServiceImplTest {
         long userId = 1L;
         long itemId = 2L;
         String commentText = "Test comment";
-        
-        when(bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndBefore(
-                eq(itemId), eq(userId), eq(BookingStatus.APPROVED), any(LocalDateTime.class)))
-                .thenReturn(true);
-        
+        when(bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndBefore(eq(itemId), eq(userId), eq(BookingStatus.APPROVED), any(LocalDateTime.class))).thenReturn(true);
         assertThrows(ResourceNotFoundException.class, () -> itemService.addComment(userId, itemId, commentText));
     }
 
@@ -246,13 +218,12 @@ class ItemServiceImplTest {
         ownerDto.setEmail("owner@example.com");
         ItemDto itemDto = new ItemDto();
         itemDto.setName("Test Item");
-        itemDto.setDescription(null); 
+        itemDto.setDescription(null);
         itemDto.setAvailable(true);
         itemDto.setLastBooking(null);
         itemDto.setNextBooking(null);
         itemDto.setRequestId(0);
         itemDto.setComments(new ArrayList<>());
-        
         assertThrows(ValidationException.class, () -> itemService.saveItem(1L, itemDto));
     }
 
@@ -268,12 +239,9 @@ class ItemServiceImplTest {
         List<Item> items = new ArrayList<>();
         items.add(item1);
         items.add(item2);
-        
         when(itemRepository.findItemsByOwner(userId)).thenReturn(items);
         List<ItemDto> result = itemService.findItemsByOwner(userId);
-
         verify(itemRepository, times(1)).findItemsByOwner(userId);
-        
         assertEquals(2, result.size());
         assertEquals("Item 1", result.get(0).getName());
         assertEquals("Item 2", result.get(1).getName());
@@ -293,12 +261,9 @@ class ItemServiceImplTest {
         item.setName("Old Name");
         item.setDescription("Old Description");
         item.setAvailable(false);
-        
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
         ItemDto updatedItemDto = itemService.update(userId, itemId, itemDto);
-        
         verify(itemRepository, times(1)).findById(itemId);
-        
         assertEquals(itemDto.getName(), updatedItemDto.getName());
         assertEquals(itemDto.getDescription(), updatedItemDto.getDescription());
         assertEquals(itemDto.getAvailable(), updatedItemDto.getAvailable());
@@ -315,13 +280,10 @@ class ItemServiceImplTest {
         Item item = new Item();
         item.setId(itemId);
         item.setOwner(2L);
-        
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-        
         assertThrows(ResourceNotFoundException.class, () -> {
             itemService.update(userId, itemId, itemDto);
         });
-
         verify(itemRepository, times(1)).findById(itemId);
     }
 
@@ -332,13 +294,10 @@ class ItemServiceImplTest {
         itemDto.setName("Test Item");
         itemDto.setDescription("Test Description");
         itemDto.setRequestId(0);
-        
         when(userService.getUserById(anyLong())).thenReturn(null);
-        
         assertThrows(ResourceNotFoundException.class, () -> {
             itemService.saveItem(userId, itemDto);
         });
-        
         verify(userService, times(1)).getUserById(userId);
     }
 
@@ -353,13 +312,10 @@ class ItemServiceImplTest {
         userDto.setEmail("test@example.com");
         Item item = new Item();
         item.setId(itemId);
-
-        when(bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndBefore(eq(itemId), eq(userId),
-                eq(BookingStatus.APPROVED), any(LocalDateTime.class))).thenReturn(true);
+        when(bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndBefore(eq(itemId), eq(userId), eq(BookingStatus.APPROVED), any(LocalDateTime.class))).thenReturn(true);
         when(userService.getUserById(userId)).thenReturn(userDto);
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
         CommentDto result = itemService.addComment(userId, itemId, commentText);
-
         assertNotNull(result);
         assertEquals(commentText, result.getText());
         assertEquals("Test User", result.getAuthorName());
@@ -370,9 +326,7 @@ class ItemServiceImplTest {
     void getItemById_ItemNotFound_ThrowsResourceNotFoundException() {
         long userId = 1L;
         long itemId = 100L;
-
         when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
-
         assertThrows(ResourceNotFoundException.class, () -> itemService.getItemById(userId, itemId));
     }
 
@@ -380,7 +334,6 @@ class ItemServiceImplTest {
     void getItemById1() {
         long userId = 1L;
         long itemId = 1L;
-
         Item item = new Item();
         item.setName("banmedas");
         item.setDescription("description");
@@ -389,28 +342,24 @@ class ItemServiceImplTest {
         item.setOwner(userId);
         item.setComments(new ArrayList<>());
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-
-        ItemDto itemDto = itemService.getItemById(userId,itemId);
-        assertEquals(item.getDescription(),itemDto.getDescription());
+        ItemDto itemDto = itemService.getItemById(userId, itemId);
+        assertEquals(item.getDescription(), itemDto.getDescription());
     }
 
     @Test
     void getItemById2() {
         long userId = 1L;
         long itemId = 1L;
-
         Item item = new Item();
         item.setName("banmedas");
         item.setDescription("description");
         item.setAvailable(true);
         item.setId(itemId);
-        item.setOwner(userId+1);
+        item.setOwner(userId + 1);
         item.setComments(new ArrayList<>());
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-
-        ItemDto itemDto = itemService.getItemById(userId,itemId);
-        assertEquals(item.getDescription(),itemDto.getDescription());
-        assertEquals(null,itemDto.getLastBooking());
+        ItemDto itemDto = itemService.getItemById(userId, itemId);
+        assertEquals(item.getDescription(), itemDto.getDescription());
+        assertNull(itemDto.getLastBooking());
     }
-
 }
