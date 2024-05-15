@@ -28,7 +28,6 @@ public class ItemClient {
     public ResponseEntity<Object> getItemById(long userId, long itemId) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("X-Sharer-User-Id", String.valueOf(userId));
-        HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
         return restTemplate.getForEntity("/{itemId}", Object.class, itemId);
     }
 
