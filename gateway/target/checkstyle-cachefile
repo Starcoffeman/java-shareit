@@ -1,0 +1,15 @@
+#Wed May 15 21:16:54 MSK 2024
+configuration*?=C051E50CC1D9DA958E0989B7766A2682B8502029
+module-resource*?\:suppressions.xml=B6C56B864127A55986A2D096B53D68E97E9F54B7
+C\:\\Users\\Starman\\Desktop\\java-shareit-add-docker\\gateway\\src\\main\\java\\ru\\practicum\\shareit\\user\\UserController.java=1715789906028
+C\:\\Users\\Starman\\Desktop\\java-shareit-add-docker\\gateway\\src\\main\\java\\ru\\practicum\\shareit\\comment\\CommentDto.java=1715760625000
+C\:\\Users\\Starman\\Desktop\\java-shareit-add-docker\\gateway\\src\\main\\java\\ru\\practicum\\shareit\\item\\ItemController.java=1715791732382
+C\:\\Users\\Starman\\Desktop\\java-shareit-add-docker\\gateway\\src\\main\\java\\ru\\practicum\\shareit\\user\\dto\\UserDto.java=1715788123198
+C\:\\Users\\Starman\\Desktop\\java-shareit-add-docker\\gateway\\src\\main\\java\\ru\\practicum\\shareit\\booking\\BookingClient.java=1715760625000
+C\:\\Users\\Starman\\Desktop\\java-shareit-add-docker\\gateway\\src\\main\\java\\ru\\practicum\\shareit\\request\\ItemRequestClient.java=1715760625000
+C\:\\Users\\Starman\\Desktop\\java-shareit-add-docker\\gateway\\src\\main\\java\\ru\\practicum\\shareit\\intf\\Update.java=1714996216000
+C\:\\Users\\Starman\\Desktop\\java-shareit-add-docker\\gateway\\src\\main\\java\\ru\\practicum\\shareit\\intf\\Create.java=1714996216000
+C\:\\Users\\Starman\\Desktop\\java-shareit-add-docker\\gateway\\src\\main\\java\\ru\\practicum\\shareit\\item\\dto\\ItemDto.java=1715789665118
+C\:\\Users\\Starman\\Desktop\\java-shareit-add-docker\\gateway\\src\\main\\java\\ru\\practicum\\shareit\\user\\UserClient.java=1715790158357
+C\:\\Users\\Starman\\Desktop\\java-shareit-add-docker\\gateway\\src\\main\\resources\\application.properties=1715760625000
+C\:\\Users\\Starman\\Desktop\\java-shareit-add-docker\\gateway\\src\\main\\java\\ru\\practicum\\shareit\\request\\dto\\ItemRequestDto.java=1715788632788
