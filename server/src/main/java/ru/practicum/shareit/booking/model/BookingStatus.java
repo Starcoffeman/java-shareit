@@ -5,5 +5,14 @@ public enum BookingStatus {
     APPROVED,
     REJECTED,
     CANCELED,
-    UNDEFINED
+    UNDEFINED;
+
+    public static boolean isValid(String state) {
+        for (BookingStatus bookingState : BookingStatus.values()) {
+            if (bookingState.name().equalsIgnoreCase(state)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

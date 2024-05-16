@@ -209,7 +209,11 @@ public class ItemServiceImpl implements ItemService {
 
     private BookingRequestDto findNextBookingByItemId(long itemId) {
         Booking nextBookings = bookingRepository.findFirstBookingByItemIdAndStatusAndStartIsAfter(itemId, BookingStatus.APPROVED, LocalDateTime.now(), Sort.by(Sort.Direction.ASC, "start"));
-        BookingDto nextBookingsDTO = BookingMapper.mapToBookingDto(nextBookings);
-        return BookingMapper.mapToBookingRequestDto(nextBookingsDTO);
+        if (nextBookings != null) {
+            BookingDto nextBookingsDTO = BookingMapper.mapToBookingDto(nextBookings);
+            return BookingMapper.mapToBookingRequestDto(nextBookingsDTO);
+        } else {
+            return null;
+        }
     }
 }
