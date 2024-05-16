@@ -16,34 +16,35 @@ import ru.practicum.shareit.item.dto.ItemDto;
 @RequiredArgsConstructor
 @Slf4j
 public class ItemController {
+    public static final String USER_ID = "X-Sharer-User-Id";
     private final ItemClient itemClient;
 
     @GetMapping("/{itemId}")
-    public ResponseEntity<Object> getItemById(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> getItemById(@RequestHeader(USER_ID) long userId,
                                               @PathVariable("itemId") long itemId) {
         log.info("Forwarding request to get item by id: {}", itemId);
-        return itemClient.getItemById(itemId);
+        return itemClient.getItemById(userId,itemId);
     }
 
     @PostMapping
-    public ResponseEntity<Object> saveItem(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> saveItem(@RequestHeader(USER_ID) long userId,
                                            @RequestBody @Validated(Create.class) ItemDto itemDto) {
         log.info("Forwarding request to save item: {}", itemDto);
         return itemClient.saveItem(userId,itemDto);
     }
 
     @PatchMapping("/{itemId}")
-    public ResponseEntity<Object> updateItem(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> updateItem(@RequestHeader(USER_ID) long userId,
                                              @PathVariable("itemId") long itemId,
                                              @RequestBody @Validated(Update.class) ItemDto itemDto) {
         log.info("Forwarding request to update item with id: {}", itemId);
-        return itemClient.updateItem(itemId, itemDto);
+        return itemClient.updateItem(itemId,userId, itemDto);
     }
 
     @GetMapping
-    public ResponseEntity<Object> findItemsByOwner(@RequestHeader("X-Sharer-User-Id") long userId) {
+    public ResponseEntity<Object> findItemsByOwner(@RequestHeader(USER_ID) long userId) {
         log.info("Forwarding request to find items by owner");
-        return itemClient.getAllItems();
+        return itemClient.findItemsByOwner(userId);
     }
 
     @GetMapping("/search")
@@ -53,10 +54,10 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    public ResponseEntity<Object> addComment(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> addComment(@RequestHeader(USER_ID) long userId,
                                              @PathVariable("itemId") long itemId,
                                              @RequestBody CommentDto commentDto) {
         log.info("Forwarding request to add comment to item with id: {}", itemId);
-        return itemClient.addCommentToItem(itemId, commentDto);
+        return itemClient.addCommentToItem(userId,itemId, commentDto);
     }
 }

@@ -18,4 +18,13 @@ public enum BookingState {
 		}
 		return Optional.empty();
 	}
+
+	public static boolean isValid(String state) {
+		for (BookingState bookingState : BookingState.values()) {
+			if (bookingState.name().equalsIgnoreCase(state)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }
