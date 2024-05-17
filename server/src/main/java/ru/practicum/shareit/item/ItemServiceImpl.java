@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingMapper;
@@ -24,7 +23,9 @@ import ru.practicum.shareit.user.dto.UserDto;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -202,15 +203,34 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private BookingRequestDto findLastBookingByItemId(long itemId) {
-        Booking lastBookings = bookingRepository.findFirstBookingByItemIdAndStatusAndStartIsBefore(itemId, BookingStatus.APPROVED, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
-        BookingDto lastBookingsDTO = BookingMapper.mapToBookingDto(lastBookings);
-        return BookingMapper.mapToBookingRequestDto(lastBookingsDTO);
+        List<Booking> bookings = bookingRepository.findByItemId(itemId);
+
+        List<Booking> approvedBookings = bookings.stream()
+                .filter(booking -> booking.getStatus() == BookingStatus.APPROVED)
+                .filter(booking -> booking.getStart().isBefore(LocalDateTime.now()))
+                .sorted(Comparator.comparing(Booking::getStart).reversed())
+                .collect(Collectors.toList());
+
+        if (!approvedBookings.isEmpty()) {
+            Booking lastBooking = approvedBookings.get(0);
+            BookingDto lastBookingsDTO = BookingMapper.mapToBookingDto(lastBooking);
+            return BookingMapper.mapToBookingRequestDto(lastBookingsDTO);
+        } else {
+            return null;
+        }
     }
 
     private BookingRequestDto findNextBookingByItemId(long itemId) {
-        Booking nextBookings = bookingRepository.findFirstBookingByItemIdAndStatusAndStartIsAfter(itemId, BookingStatus.APPROVED, LocalDateTime.now(), Sort.by(Sort.Direction.ASC, "start"));
-        if (nextBookings != null) {
-            BookingDto nextBookingsDTO = BookingMapper.mapToBookingDto(nextBookings);
+        List<Booking> bookings = bookingRepository.findByItemId(itemId);
+        List<Booking> approvedBookings = bookings.stream()
+                .filter(booking -> booking.getStatus() == BookingStatus.APPROVED)
+                .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
+                .sorted(Comparator.comparing(Booking::getStart))
+                .collect(Collectors.toList());
+
+        if (!approvedBookings.isEmpty()) {
+            Booking nextBooking = approvedBookings.get(0);
+            BookingDto nextBookingsDTO = BookingMapper.mapToBookingDto(nextBooking);
             return BookingMapper.mapToBookingRequestDto(nextBookingsDTO);
         } else {
             return null;
