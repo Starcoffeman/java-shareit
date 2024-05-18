@@ -39,6 +39,18 @@ public class ItemServiceImpl implements ItemService {
     private final CommentService commentService;
     private final ItemRequestRepository itemRequestRepository;
 
+//    @Override
+//    public List<ItemDto> findItemsByOwner(long userId) {
+//        List<Item> items = itemRepository.findItemsByOwner(userId);
+//        List<ItemDto> itemDtos = new ArrayList<>();
+//        for (Item item : items) {
+//            ItemDto b = ItemMapper.mapToItemDto(item);
+//            b.setNextBooking(findNextBookingByItemId(item.getId()));
+//            b.setLastBooking(findLastBookingByItemId(item.getId()));
+//            itemDtos.add(b);
+//        }
+//        return itemDtos;
+//    }
     @Override
     public List<ItemDto> findItemsByOwner(long userId) {
         List<Item> items = itemRepository.findItemsByOwner(userId);
@@ -47,7 +59,7 @@ public class ItemServiceImpl implements ItemService {
             ItemDto b = ItemMapper.mapToItemDto(item);
             b.setNextBooking(findNextBookingByItemId(item.getId()));
             b.setLastBooking(findLastBookingByItemId(item.getId()));
-            itemDtos.add(b);
+            itemDtos.add(0, b);
         }
         return itemDtos;
     }
@@ -55,7 +67,8 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public ItemDto update(long userId, long itemId, ItemDto itemDto) {
-        Item item = itemRepository.findById(itemId).orElseThrow(() -> new ResourceNotFoundException("Item not found with ID: " + itemId));
+        Item item = itemRepository.findById(itemId).orElseThrow(
+                () -> new ResourceNotFoundException("Item not found with ID: " + itemId));
 
         if (item.getOwner() != userId) {
             throw new ResourceNotFoundException("Отсутствует user под id");
@@ -78,7 +91,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto getItemById(long userId, long itemId) {
-        Item item = itemRepository.findById(itemId).orElseThrow(() -> new ResourceNotFoundException("Item not found with ID: " + itemId));
+        Item item = itemRepository.findById(itemId).orElseThrow(
+                () -> new ResourceNotFoundException("Item not found with ID: " + itemId));
         ItemDto itemDto = ItemMapper.mapToItemDto(item);
 
         if (item.getOwner() != userId) {
@@ -171,7 +185,8 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public CommentDto addComment(long userId, long itemId, String text) {
-        List<Booking> futureBookings = bookingRepository.findBookingsByItemOwnerAndStartBeforeAndEndAfter(userId, LocalDateTime.now(), LocalDateTime.now());
+        List<Booking> futureBookings = bookingRepository.findBookingsByItemOwnerAndStartBeforeAndEndAfter(
+                userId, LocalDateTime.now(), LocalDateTime.now());
         boolean hasFutureBooking = futureBookings.stream()
                 .anyMatch(booking -> booking.getStatus() == BookingStatus.APPROVED && booking.getItem().getId() == itemId);
 
