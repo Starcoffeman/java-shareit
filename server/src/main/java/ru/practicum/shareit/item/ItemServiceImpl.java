@@ -177,14 +177,15 @@ public class ItemServiceImpl implements ItemService {
         List<Booking> futureBookings = bookingRepository.findByItemOwner(userId);
 
         boolean hasFutureBooking = futureBookings.stream()
-                .anyMatch(booking -> booking.getStatus() == BookingStatus.APPROVED
-                        && booking.getItem().getId() == itemId
+                .anyMatch(booking -> booking.getItem().getId() == itemId
+                        && booking.getStatus() == BookingStatus.APPROVED
                         && booking.getStart().isBefore(LocalDateTime.now())
                         && booking.getEnd().isAfter(LocalDateTime.now()));
 
         if (!hasFutureBooking) {
             throw new ValidationException("User with ID " + userId + " has no approved future booking for item with ID " + itemId + ". Cannot add comment until the booking is completed.");
         }
+
 
         if (text.isBlank()) {
             throw new ValidationException("Comment text cannot be empty");
