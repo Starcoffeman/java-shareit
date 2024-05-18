@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,18 +40,6 @@ public class ItemServiceImpl implements ItemService {
     private final CommentService commentService;
     private final ItemRequestRepository itemRequestRepository;
 
-    //    @Override
-//    public List<ItemDto> findItemsByOwner(long userId) {
-//        List<Item> items = itemRepository.findItemsByOwner(userId);
-//        List<ItemDto> itemDtos = new ArrayList<>();
-//        for (Item item : items) {
-//            ItemDto b = ItemMapper.mapToItemDto(item);
-//            b.setNextBooking(findNextBookingByItemId(item.getId()));
-//            b.setLastBooking(findLastBookingByItemId(item.getId()));
-//            itemDtos.add(b);
-//        }
-//        return itemDtos;
-//    }
     @Override
     public List<ItemDto> findItemsByOwner(long userId) {
         List<Item> items = itemRepository.findItemsByOwner(userId);
@@ -186,12 +175,19 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public CommentDto addComment(long userId, long itemId, String text) {
-        List<Booking> futureBookings = bookingRepository.findBookingsByItemOwnerAndStartBeforeAndEndAfter(
-                userId, LocalDateTime.now(), LocalDateTime.now());
-        boolean hasFutureBooking = futureBookings.stream()
-                .anyMatch(booking -> booking.getStatus() == BookingStatus.APPROVED && booking.getItem().getId() == itemId);
+//        List<Booking> futureBookings = bookingRepository.findBookingsByItemOwnerAndStartBeforeAndEndAfter(
+//                userId, LocalDateTime.now(), LocalDateTime.now());
+//        boolean hasFutureBooking = futureBookings.stream()
+//                .anyMatch(booking -> booking.getStatus() == BookingStatus.APPROVED && booking.getItem().getId() == itemId);
+//
+//        if (!hasFutureBooking) {
+//            throw new ValidationException("User with ID " + userId + " has no approved future booking for item with ID " + itemId + ". Cannot add comment until the booking is completed.");
+//        }
 
-        if (!hasFutureBooking) {
+        Optional<Booking> futureBooking = bookingRepository.findFirstByItemOwnerAndItemIdAndStatusAndEndAfter(
+                userId, itemId, BookingStatus.APPROVED, LocalDateTime.now());
+
+        if (futureBooking.isEmpty()) {
             throw new ValidationException("User with ID " + userId + " has no approved future booking for item with ID " + itemId + ". Cannot add comment until the booking is completed.");
         }
 

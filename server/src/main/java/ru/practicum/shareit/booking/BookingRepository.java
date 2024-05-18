@@ -9,6 +9,7 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
@@ -49,6 +50,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findBookingsByBookerIdOrItemOwner(Long bookerId, Long ownerId);
 
+    Optional<Booking> findFirstByItemOwnerAndItemIdAndStatusAndEndAfter(long userId, long itemId, BookingStatus bookingStatus, LocalDateTime now);
 }
 
 
