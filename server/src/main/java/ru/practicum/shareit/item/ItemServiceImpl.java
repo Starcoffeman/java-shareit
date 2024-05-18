@@ -204,7 +204,6 @@ public class ItemServiceImpl implements ItemService {
 
     private BookingRequestDto findLastBookingByItemId(long itemId) {
         List<Booking> bookings = bookingRepository.findByItemId(itemId);
-
         List<Booking> approvedBookings = bookings.stream()
                 .filter(booking -> booking.getStatus() == BookingStatus.APPROVED)
                 .filter(booking -> booking.getStart().isBefore(LocalDateTime.now()))

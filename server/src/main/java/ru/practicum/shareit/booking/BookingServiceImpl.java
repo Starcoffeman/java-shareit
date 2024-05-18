@@ -17,7 +17,9 @@ import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -239,38 +241,55 @@ public class BookingServiceImpl implements BookingService {
         return bookings;
     }
 
+//    @Override
+//    public List<Booking> findBookingsByBookerIdOrItemOwner(long bookerId, long ownerId) {
+//        List<Booking> bookings = bookingRepository.findBookingsByBookerIdOrItemOwner(bookerId, ownerId,
+//                Sort.by(Sort.Direction.DESC, "start"));
+//        return bookings;
+//    }
+
     @Override
     public List<Booking> findBookingsByBookerIdOrItemOwner(long bookerId, long ownerId) {
-        List<Booking> bookings = bookingRepository.findBookingsByBookerIdOrItemOwner(bookerId, ownerId,
-                Sort.by(Sort.Direction.DESC, "start"));
-        return bookings;
+        List<Booking> bookings = bookingRepository.findBookingsByBookerIdOrItemOwner(bookerId, ownerId);
+        List<Booking> sortedBookings = bookings.stream()
+                .sorted(Comparator.comparing(Booking::getStart).reversed())
+                .collect(Collectors.toList());
+        return sortedBookings;
     }
 
     @Override
     public List<Booking> findBookingsByBookerIdAndStatusWaiting(long userId) {
-        List<Booking> bookings = bookingRepository.findBookingsByBookerIdAndStatus(userId, BookingStatus.WAITING,
-                Sort.by(Sort.Direction.DESC, "start"));
-        return bookings;
+        List<Booking> bookings = bookingRepository.findByBookerId(userId);
+        return bookings.stream()
+                .filter(booking -> booking.getStatus() == BookingStatus.WAITING)
+                .sorted(Comparator.comparing(Booking::getStart).reversed())
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<Booking> findBookingsByItemOwnerAndStatusWaiting(long userId) {
-        List<Booking> bookings = bookingRepository.findBookingsByItemOwnerAndStatus(userId, BookingStatus.WAITING,
-                Sort.by(Sort.Direction.DESC, "start"));
-        return bookings;
+        List<Booking> bookings = bookingRepository.findByItemOwner(userId);
+        return bookings.stream()
+                .filter(booking -> booking.getStatus() == BookingStatus.WAITING)
+                .sorted(Comparator.comparing(Booking::getStart).reversed())
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<Booking> findBookingsByItemOwnerAndStatusRejected(long userId) {
-        List<Booking> bookings = bookingRepository.findBookingsByItemOwnerAndStatus(userId, BookingStatus.REJECTED,
-                Sort.by(Sort.Direction.DESC, "start"));
-        return bookings;
+        List<Booking> bookings = bookingRepository.findByItemOwner(userId);
+        return bookings.stream()
+                .filter(booking -> booking.getStatus() == BookingStatus.REJECTED)
+                .sorted(Comparator.comparing(Booking::getStart).reversed())
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<Booking> findBookingsByBookerIdAndStatusRejected(long userId) {
-        List<Booking> bookings = bookingRepository.findBookingsByBookerIdAndStatus(userId, BookingStatus.REJECTED,
-                Sort.by(Sort.Direction.DESC, "start"));
-        return bookings;
+        List<Booking> bookings = bookingRepository.findByBookerId(userId);
+        return bookings.stream()
+                .filter(booking -> booking.getStatus() == BookingStatus.REJECTED)
+                .sorted(Comparator.comparing(Booking::getStart).reversed())
+                .collect(Collectors.toList());
     }
 }
