@@ -39,7 +39,7 @@ public class ItemServiceImpl implements ItemService {
     private final CommentService commentService;
     private final ItemRequestRepository itemRequestRepository;
 
-//    @Override
+    //    @Override
 //    public List<ItemDto> findItemsByOwner(long userId) {
 //        List<Item> items = itemRepository.findItemsByOwner(userId);
 //        List<ItemDto> itemDtos = new ArrayList<>();
@@ -61,6 +61,7 @@ public class ItemServiceImpl implements ItemService {
             b.setLastBooking(findLastBookingByItemId(item.getId()));
             itemDtos.add(0, b);
         }
+        itemDtos.sort(Comparator.comparingLong(ItemDto::getId));
         return itemDtos;
     }
 
