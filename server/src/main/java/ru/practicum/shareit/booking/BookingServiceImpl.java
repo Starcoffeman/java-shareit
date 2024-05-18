@@ -241,13 +241,6 @@ public class BookingServiceImpl implements BookingService {
         return bookings;
     }
 
-//    @Override
-//    public List<Booking> findBookingsByBookerIdOrItemOwner(long bookerId, long ownerId) {
-//        List<Booking> bookings = bookingRepository.findBookingsByBookerIdOrItemOwner(bookerId, ownerId,
-//                Sort.by(Sort.Direction.DESC, "start"));
-//        return bookings;
-//    }
-
     @Override
     public List<Booking> findBookingsByBookerIdOrItemOwner(long bookerId, long ownerId) {
         List<Booking> bookings = bookingRepository.findBookingsByBookerIdOrItemOwner(bookerId, ownerId);
