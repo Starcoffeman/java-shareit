@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingMapper;
@@ -25,6 +27,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -174,18 +177,11 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public CommentDto addComment(long userId, long itemId, String text) {
-        List<Booking> futureBookings = bookingRepository.findByItemOwner(userId);
-
-        boolean hasFutureBooking = futureBookings.stream()
-                .anyMatch(booking -> booking.getItem().getId() == itemId
-                        && booking.getStatus() == BookingStatus.APPROVED
-                        && booking.getStart().isBefore(LocalDateTime.now())
-                        && booking.getEnd().isAfter(LocalDateTime.now()));
+        boolean hasFutureBooking = hasFutureBooking(userId, itemId);
 
         if (!hasFutureBooking) {
             throw new ValidationException("User with ID " + userId + " has no approved future booking for item with ID " + itemId + ". Cannot add comment until the booking is completed.");
         }
-
 
         if (text.isBlank()) {
             throw new ValidationException("Comment text cannot be empty");
@@ -213,6 +209,21 @@ public class ItemServiceImpl implements ItemService {
         commentDto.setAuthorName(user.getName());
 
         return commentDto;
+    }
+
+    private boolean hasFutureBooking(long userId, long itemId) {
+        Page<Booking> futureBookings = bookingRepository.findBookingsByItemOwner(userId, Pageable.unpaged());
+        LocalDateTime now = LocalDateTime.now();
+
+        for (Booking booking : futureBookings) {
+            if (booking.getStatus() == BookingStatus.APPROVED &&
+                    booking.getItem().getId() == itemId &&
+                    booking.getStart().isBefore(now) &&
+                    booking.getEnd().isAfter(now)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
