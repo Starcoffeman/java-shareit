@@ -176,9 +176,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public CommentDto addComment(long userId, long itemId, String text) {
-        boolean hasFutureBooking = hasFutureBooking(userId, itemId);
-
-        if (!hasFutureBooking) {
+        if (!hasFutureBooking(userId, itemId)) {
             throw new ValidationException("User with ID " + userId + " has no approved future booking for item with ID " + itemId + ". Cannot add comment until the booking is completed.");
         }
 
@@ -211,18 +209,14 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private boolean hasFutureBooking(long userId, long itemId) {
-        Page<Booking> futureBookings = bookingRepository.findBookingsByItemOwner(userId, Pageable.unpaged());
+        List<Booking> bookings = bookingRepository.findBookingsByItemOwner(userId, Pageable.unpaged()).getContent();
         LocalDateTime now = LocalDateTime.now();
 
-        for (Booking booking : futureBookings) {
-            if (booking.getStatus() == BookingStatus.APPROVED &&
-                    booking.getItem().getId() == itemId &&
-                    booking.getStart().isBefore(now) &&
-                    booking.getEnd().isAfter(now)) {
-                return true;
-            }
-        }
-        return false;
+        return bookings.stream()
+                .anyMatch(booking -> booking.getStatus() == BookingStatus.APPROVED &&
+                        booking.getItem().getId() == itemId &&
+                        booking.getStart().isBefore(now) &&
+                        booking.getEnd().isAfter(now));
     }
 
 
