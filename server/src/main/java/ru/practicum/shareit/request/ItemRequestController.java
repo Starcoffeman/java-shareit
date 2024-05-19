@@ -28,15 +28,14 @@ public class ItemRequestController {
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
     public List<ItemRequestDto> getAllRequests(@RequestHeader(USER_ID) long userId,
-                                               @RequestParam(required = false, defaultValue = "0") int from,
-                                               @RequestParam(required = false, defaultValue = "100") int size) {
+                                               @RequestParam(defaultValue = "0") int from,
+                                               @RequestParam(defaultValue = "100") int size) {
         log.info("Fetching all requests for user with ID {}", userId);
         return itemRequestService.getAllRequests(userId, from, size);
     }
 
     @GetMapping("/{requestId}")
     @ResponseStatus(HttpStatus.OK)
-
     public ItemRequestDto getRequestById(@PathVariable Long requestId,
                                          @RequestHeader(USER_ID) long userId) {
         log.info("Fetching request with ID {} for user with ID {}", requestId, userId);
@@ -49,5 +48,4 @@ public class ItemRequestController {
         log.info("Fetching item requests for user with ID {}", userId);
         return itemRequestService.findItemRequestsById(userId);
     }
-
 }

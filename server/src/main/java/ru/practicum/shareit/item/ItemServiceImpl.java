@@ -116,20 +116,12 @@ public class ItemServiceImpl implements ItemService {
             throw new ValidationException("Id не может быть отрицательным");
         }
 
-        if (itemDto.getName() == null) {
-            throw new ValidationException("Имя не может быть null");
+        if (itemDto.getName() == null || itemDto.getName().isBlank()) {
+            throw new ValidationException("Имя не может быть null или пустым");
         }
 
-        if (itemDto.getDescription() == null) {
+        if (itemDto.getDescription() == null || itemDto.getDescription().isEmpty()) {
             throw new ValidationException("Описание не может быть пустым");
-        }
-
-        if (itemDto.getName().isBlank()) {
-            throw new ValidationException("Имя не может быть пустым");
-        }
-
-        if (itemDto.getName().isEmpty()) {
-            throw new ValidationException("Имя не может быть пустым");
         }
 
         if (itemDto.getAvailable() == null) {
@@ -137,21 +129,24 @@ public class ItemServiceImpl implements ItemService {
         }
 
         if (userService.getUserById(userId) == null) {
-            throw new ResourceNotFoundException("Отсутствует user под id:");
+            throw new ResourceNotFoundException("Отсутствует user под id: " + userId);
         }
 
         Item item = ItemMapper.mapToNewItem(itemDto);
         item.setOwner(userId);
+
         if (itemDto.getRequestId() == 0) {
             item.setRequestId(null);
         } else {
             item.setRequestId(itemRequestRepository.findItemRequestByRequestor(itemDto.getRequestId()));
         }
+
         item = itemRepository.save(item);
         ItemDto dto = ItemMapper.mapToItemDto(item);
         dto.setNextBooking(findNextBookingByItemId(item.getId()));
         dto.setLastBooking(findLastBookingByItemId(item.getId()));
         dto.setComments(CommentMapper.mapToCommentDto(commentRepository.findAllByItemId(item.getId())));
+
         if (itemDto.getRequestId() == 0) {
             dto.setRequestId(0);
         } else {
@@ -159,6 +154,7 @@ public class ItemServiceImpl implements ItemService {
         }
         return dto;
     }
+
 
     @Override
     public List<ItemDto> searchItems(String searchText) {
@@ -175,14 +171,17 @@ public class ItemServiceImpl implements ItemService {
         List<Booking> futureBookings = bookingRepository.findByBookerId(userId);
         System.out.println(futureBookings);
         if (!checkComment(futureBookings, itemId, userId)) {
-            throw new ValidationException("User with ID " + userId + " has no approved future booking for item with ID " + itemId + ". Cannot add comment until the booking is completed.");
+            throw new ValidationException("User with ID " + userId + " has no approved future booking for item with ID "
+                    + itemId + ". Cannot add comment until the booking is completed.");
         }
 
         if (text.isBlank()) {
             throw new ValidationException("Comment text cannot be empty");
         }
 
-        Item item = itemRepository.findById(itemId).orElseThrow(() -> new ResourceNotFoundException("Item not found with ID: " + itemId));
+        Item item = itemRepository.findById(itemId).orElseThrow(
+                () -> new ResourceNotFoundException("Item not found with ID: " + itemId)
+        );
 
         UserDto user = userService.getUserById(userId);
 
@@ -206,20 +205,10 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private boolean checkComment(List<Booking> futureBookings, long itemId, long userId) {
-//        for (Booking booking : futureBookings) {
-//            if (booking.getItem().getId() == itemId &&
-//                    booking.getItem().getOwner() != userId &&
-//                    booking.getStatus() == BookingStatus.APPROVED &&
-//                    booking.getBooker().getId() == userId) {
-//                return true;
-//            }
-//        }
-//        return false;
         Booking booking = futureBookings.get(0);
-        if (booking.getItem().getId() == itemId &&
-                booking.getItem().getOwner() != userId &&
-                booking.getStatus() == BookingStatus.APPROVED &&
-                booking.getBooker().getId() == userId) {
+        if (booking.getItem().getId() == itemId && booking.getItem().getOwner() != userId
+                && booking.getStatus() == BookingStatus.APPROVED
+                && booking.getBooker().getId() == userId) {
             return true;
         }
         return false;
@@ -227,7 +216,10 @@ public class ItemServiceImpl implements ItemService {
 
     private BookingRequestDto findLastBookingByItemId(long itemId) {
         List<Booking> bookings = bookingRepository.findByItemId(itemId);
-        List<Booking> approvedBookings = bookings.stream().filter(booking -> booking.getStatus() == BookingStatus.APPROVED).filter(booking -> booking.getStart().isBefore(LocalDateTime.now())).sorted(Comparator.comparing(Booking::getStart).reversed()).collect(Collectors.toList());
+        List<Booking> approvedBookings = bookings.stream()
+                .filter(booking -> booking.getStatus() == BookingStatus.APPROVED)
+                .filter(booking -> booking.getStart().isBefore(LocalDateTime.now()))
+                .sorted(Comparator.comparing(Booking::getStart).reversed()).collect(Collectors.toList());
 
         if (!approvedBookings.isEmpty()) {
             Booking lastBooking = approvedBookings.get(0);
@@ -240,7 +232,10 @@ public class ItemServiceImpl implements ItemService {
 
     private BookingRequestDto findNextBookingByItemId(long itemId) {
         List<Booking> bookings = bookingRepository.findByItemId(itemId);
-        List<Booking> approvedBookings = bookings.stream().filter(booking -> booking.getStatus() == BookingStatus.APPROVED).filter(booking -> booking.getStart().isAfter(LocalDateTime.now())).sorted(Comparator.comparing(Booking::getStart)).collect(Collectors.toList());
+        List<Booking> approvedBookings = bookings.stream()
+                .filter(booking -> booking.getStatus() == BookingStatus.APPROVED)
+                .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
+                .sorted(Comparator.comparing(Booking::getStart)).collect(Collectors.toList());
 
         if (!approvedBookings.isEmpty()) {
             Booking nextBooking = approvedBookings.get(0);
