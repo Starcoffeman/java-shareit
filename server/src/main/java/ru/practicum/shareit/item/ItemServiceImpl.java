@@ -173,7 +173,7 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     public CommentDto addComment(long userId, long itemId, String text) {
         List<Booking> futureBookings = bookingRepository.findByBookerId(userId);
-
+        System.out.println(futureBookings);
         if (!checkComment(futureBookings, itemId, userId)) {
             throw new ValidationException("User with ID " + userId + " has no approved future booking for item with ID " + itemId + ". Cannot add comment until the booking is completed.");
         }
@@ -206,13 +206,21 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private boolean checkComment(List<Booking> futureBookings, long itemId, long userId) {
-        for (Booking booking : futureBookings) {
-            if (booking.getItem().getId() == itemId &&
-                    booking.getItem().getOwner() != userId &&
-                    booking.getStatus() == BookingStatus.APPROVED &&
-                    booking.getBooker().getId() == userId) {
-                return true;
-            }
+//        for (Booking booking : futureBookings) {
+//            if (booking.getItem().getId() == itemId &&
+//                    booking.getItem().getOwner() != userId &&
+//                    booking.getStatus() == BookingStatus.APPROVED &&
+//                    booking.getBooker().getId() == userId) {
+//                return true;
+//            }
+//        }
+//        return false;
+        Booking booking = futureBookings.get(0);
+        if (booking.getItem().getId() == itemId &&
+                booking.getItem().getOwner() != userId &&
+                booking.getStatus() == BookingStatus.APPROVED &&
+                booking.getBooker().getId() == userId) {
+            return true;
         }
         return false;
     }
