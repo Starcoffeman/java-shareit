@@ -28,7 +28,6 @@ public class BookingClient extends BaseClient {
         return get("?state=" + state + "&from=" + from + "&size=" + size, userId);
     }
 
-
     public ResponseEntity<Object> bookItem(long userId, BookItemRequestDto requestDto) {
         return post("", userId, requestDto);
     }
@@ -44,6 +43,4 @@ public class BookingClient extends BaseClient {
     public ResponseEntity<Object> findBookingsByStateAndOwnerId(long userId, String state, int from, int size) {
         return get("/owner?state=" + state + "&from=" + from + "&size=" + size, userId);
     }
-
-
 }

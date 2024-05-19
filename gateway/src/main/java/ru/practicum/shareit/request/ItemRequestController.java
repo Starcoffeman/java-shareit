@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.intf.Create;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 
+import static ru.practicum.shareit.item.ItemController.USER_ID;
 
 @RestController
 @RequestMapping(path = "/requests")
@@ -16,7 +17,6 @@ import ru.practicum.shareit.request.dto.ItemRequestDto;
 @Slf4j
 public class ItemRequestController {
 
-    public static final String USER_ID = "X-Sharer-User-Id";
     private final ItemRequestClient itemRequestClient;
 
     @PostMapping
