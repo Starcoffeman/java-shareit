@@ -206,14 +206,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private boolean checkComment(List<Booking> futureBookings, long itemId, long userId) {
-        LocalDateTime now = LocalDateTime.now();
         for (Booking booking : futureBookings) {
             if (booking.getItem().getId() == itemId &&
                     booking.getItem().getOwner() != userId &&
                     booking.getStatus() == BookingStatus.APPROVED &&
-                    booking.getBooker().getId() == userId &&
-                    booking.getStart().isBefore(now) &&
-                    booking.getEnd().isAfter(now)) {
+                    booking.getBooker().getId() == userId) {
                 return true;
             }
         }
