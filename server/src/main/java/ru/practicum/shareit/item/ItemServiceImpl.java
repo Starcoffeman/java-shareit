@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingMapper;
@@ -57,8 +56,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public ItemDto update(long userId, long itemId, ItemDto itemDto) {
-        Item item = itemRepository.findById(itemId).orElseThrow(
-                () -> new ResourceNotFoundException("Item not found with ID: " + itemId));
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new ResourceNotFoundException("Item not found with ID: " + itemId));
 
         if (item.getOwner() != userId) {
             throw new ResourceNotFoundException("Отсутствует user под id");
@@ -81,8 +79,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto getItemById(long userId, long itemId) {
-        Item item = itemRepository.findById(itemId).orElseThrow(
-                () -> new ResourceNotFoundException("Item not found with ID: " + itemId));
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new ResourceNotFoundException("Item not found with ID: " + itemId));
         ItemDto itemDto = ItemMapper.mapToItemDto(item);
 
         if (item.getOwner() != userId) {
@@ -175,7 +172,11 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public CommentDto addComment(long userId, long itemId, String text) {
-        if (!hasFutureBooking(userId, itemId)) {
+        List<Booking> futureBookings = bookingRepository.findByBookerId(userId);
+        System.out.println(futureBookings);
+        System.out.println(itemId);
+
+        if (!checkComment(futureBookings, itemId, userId)) {
             throw new ValidationException("User with ID " + userId + " has no approved future booking for item with ID " + itemId + ". Cannot add comment until the booking is completed.");
         }
 
@@ -183,8 +184,7 @@ public class ItemServiceImpl implements ItemService {
             throw new ValidationException("Comment text cannot be empty");
         }
 
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new ResourceNotFoundException("Item not found with ID: " + itemId));
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new ResourceNotFoundException("Item not found with ID: " + itemId));
 
         UserDto user = userService.getUserById(userId);
 
@@ -207,25 +207,18 @@ public class ItemServiceImpl implements ItemService {
         return commentDto;
     }
 
-    private boolean hasFutureBooking(long userId, long itemId) {
-        List<Booking> bookings = bookingRepository.findBookingsByItemOwner(userId, Pageable.unpaged()).getContent();
-        LocalDateTime now = LocalDateTime.now();
-
-        return bookings.stream()
-                .anyMatch(booking -> booking.getStatus() == BookingStatus.APPROVED &&
-                        booking.getItem().getId() == itemId &&
-                        booking.getStart().isBefore(now) &&
-                        booking.getEnd().isAfter(now));
+    private boolean checkComment(List<Booking> futureBookings, long itemId, long userId) {
+        for (Booking booking : futureBookings) {
+            if (booking.getItem().getId() == itemId && booking.getItem().getOwner() != userId && booking.getStatus() == BookingStatus.APPROVED && booking.getBooker().getId() == userId) {
+                return true;
+            }
+        }
+        return false;
     }
-
 
     private BookingRequestDto findLastBookingByItemId(long itemId) {
         List<Booking> bookings = bookingRepository.findByItemId(itemId);
-        List<Booking> approvedBookings = bookings.stream()
-                .filter(booking -> booking.getStatus() == BookingStatus.APPROVED)
-                .filter(booking -> booking.getStart().isBefore(LocalDateTime.now()))
-                .sorted(Comparator.comparing(Booking::getStart).reversed())
-                .collect(Collectors.toList());
+        List<Booking> approvedBookings = bookings.stream().filter(booking -> booking.getStatus() == BookingStatus.APPROVED).filter(booking -> booking.getStart().isBefore(LocalDateTime.now())).sorted(Comparator.comparing(Booking::getStart).reversed()).collect(Collectors.toList());
 
         if (!approvedBookings.isEmpty()) {
             Booking lastBooking = approvedBookings.get(0);
@@ -238,11 +231,7 @@ public class ItemServiceImpl implements ItemService {
 
     private BookingRequestDto findNextBookingByItemId(long itemId) {
         List<Booking> bookings = bookingRepository.findByItemId(itemId);
-        List<Booking> approvedBookings = bookings.stream()
-                .filter(booking -> booking.getStatus() == BookingStatus.APPROVED)
-                .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
-                .sorted(Comparator.comparing(Booking::getStart))
-                .collect(Collectors.toList());
+        List<Booking> approvedBookings = bookings.stream().filter(booking -> booking.getStatus() == BookingStatus.APPROVED).filter(booking -> booking.getStart().isAfter(LocalDateTime.now())).sorted(Comparator.comparing(Booking::getStart)).collect(Collectors.toList());
 
         if (!approvedBookings.isEmpty()) {
             Booking nextBooking = approvedBookings.get(0);
